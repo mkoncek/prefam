@@ -1,0 +1,34 @@
+= Prefam
+
+Preloaded file access monitor.
+
+== Usage
+
+In order to use this library you need to preload it and pass it the output file descriptor number via an environment variable `PREFAM_OUTPUT_FD`.
+
+The library not canonize or resolve the file paths that are passed into the preloaded file access functions.
+
+.Example usage from command line
+----
+PREFAM_OUTPUT_FD=${fd} LD_PRELOAD=${libdir}/libprefam.so program [args...]
+----
+
+== Building
+
+Build the project:
+
+----
+$ make compile
+----
+
+Build manual page:
+
+----
+$ make manpage
+----
+
+Run tests:
+
+----
+$ make test
+----

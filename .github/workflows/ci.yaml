@@ -1,0 +1,30 @@
+name: Continuous Integration
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: quay.io/centos/centos:stream9
+    env:
+      CC: gcc
+      CFLAGS: -Wall -Wextra -Wconversion -Wno-varargs -Og -g
+    steps:
+      - name: Checkout git repository
+        uses: actions/checkout@v7
+      - name: Install dependencies
+        run: |
+          dnf -y install epel-release
+          dnf -y install gcc make rubygem-asciidoctor
+      - name: Build manpage
+        run: |
+          make -j8 manpage
+      - name: Compile
+        run: |
+          make -j8 compile
+      - name: Test
+        run: |
+          make test
