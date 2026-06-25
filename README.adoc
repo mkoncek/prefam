@@ -8,7 +8,7 @@ In order to use this library you need to preload it and pass it the output file 
 
 The library not canonize or resolve the file paths that are passed into the preloaded file access functions.
 
-.Example usage from command line
+.Example usage from command line:
 ----
 PREFAM_OUTPUT_FD=${fd} LD_PRELOAD=${libdir}/libprefam.so program [args...]
 ----
