@@ -11,7 +11,7 @@ libprefam="${1}"
 function test_command
 {
 	exec 3>"${testdir}/metafile"
-	LIBPREFAM_OUTPUT_FD=3 LD_PRELOAD="${libprefam}" "$@"
+	PREFAM_OUTPUT_FD=3 LD_PRELOAD="${libprefam}" "$@"
 	exec 3>&-
 }
 
