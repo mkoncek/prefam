@@ -78,7 +78,7 @@ static void constructor(void)
 	}
 }
 
-//! Push multiple data chunks ino the static buffer. If the buffer is too small,
+//! Push multiple data chunks into the static buffer. If the buffer is too small,
 //! drop all the content and clear the buffer.
 //! @param n Number of chunks.
 //! @param chunks Array of chunks.
@@ -183,17 +183,22 @@ void record_path(const char* path)
 		return;
 	}
 	int path_length = (int)strlen(path);
-	if (path[0] != '/')
+	if (path[0] == '/')
 	{
-		if (buffer_store_cwd())
-		{
-			BUFFER_PUSH(
-				chunk_slash,
-				buffer_chunk_from(path, path_length),
-				chunk_newline,
-			);
-			buffer_record_output();
-		}
+		BUFFER_PUSH(
+			buffer_chunk_from(path, path_length),
+			chunk_newline,
+		);
+		buffer_record_output();
+	}
+	else if (buffer_store_cwd())
+	{
+		BUFFER_PUSH(
+			chunk_slash,
+			buffer_chunk_from(path, path_length),
+			chunk_newline,
+		);
+		buffer_record_output();
 	}
 }
 
@@ -285,14 +290,13 @@ void record_path_search(const char* path)
 					break;
 				}
 				
-				// Null-terminator is not part of the path name.
-				--static_buffer_end;
 				if (access(static_buffer, X_OK) == 0)
 				{
 					// Replace null-terminator with a new line.
-					static_buffer[static_buffer_end] = '\n';
+					static_buffer[static_buffer_end - 1] = '\n';
 					return buffer_record_output();
 				}
+				static_buffer_end = 0;
 			}
 		}
 	}

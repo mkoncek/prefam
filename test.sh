@@ -17,7 +17,11 @@ function test_command
 
 function check_result
 {
-	grep -q -e "${1}" "${testdir}/metafile"
+	if ! grep -q -e "${1}" "${testdir}/metafile"; then
+		echo "No pattern ${1} found; content of the file is:"
+		cat "${testdir}/metafile"
+		return 1
+	fi
 }
 
 echo "content" > "${testdir}/textfile"
@@ -35,5 +39,8 @@ true' > "${testdir}/executable.sh"
 chmod a+x "${testdir}/executable.sh"
 test_command "./${testdir}/executable.sh"
 check_result '.*'"${testdir}"'/executable.sh$'
+
+test_command touch "$(pwd)/${testdir}/file"
+check_result '.*'"${testdir}"'/file$'
 
 echo 'Tests PASSED'
