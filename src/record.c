@@ -169,10 +169,20 @@ static _Bool buffer_store_cwd(void)
 //! clear the buffer.
 static void buffer_record_output(void)
 {
-	if (write(static_output_fd, static_buffer, (size_t)static_buffer_end) == -1)
+	int written = 0;
+	
+	while (written != static_buffer_end)
 	{
-		log_warning("write failed on fd %d: %s", static_output_fd, strerror(errno));
+		int write_result = (int)write(static_output_fd, static_buffer + written, (size_t)(static_buffer_end - written));
+		if (write_result <= 0)
+		{
+			log_warning("write failed on fd %d: %s", static_output_fd, strerror(errno));
+			break;
+		}
+		
+		written += write_result;
 	}
+	
 	static_buffer_end = 0;
 }
 
