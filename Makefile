@@ -1,4 +1,4 @@
-.PHONY: all compile test manpage clean
+.PHONY: all compile test coverage manpage clean
 
 all: compile
 
@@ -31,3 +31,9 @@ manpage: target/manpages/prefam.1
 
 test: compile
 	@./test.sh target/libprefam.so
+
+coverage: CFLAGS += --coverage -fno-default-inline
+coverage: LDFLAGS += --coverage
+coverage: test | target/coverage/
+	@lcov --output-file target/coverage.info --directory target --capture --exclude '/usr/include/*'
+	@genhtml -o target/coverage target/coverage.info
