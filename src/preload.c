@@ -57,6 +57,7 @@ static void constructor(void)
 
 int open(const char* file, int oflag, ...)
 {
+	int errno_orig = errno;
 	mode_t mode = 0;
 	if (oflag & (O_CREAT | __O_TMPFILE))
 	{
@@ -66,11 +67,13 @@ int open(const char* file, int oflag, ...)
 		va_end(args);
 	}
 	record_path(file);
+	errno = errno_orig;
 	return open_orig(file, oflag, mode);
 }
 
 int open64(const char* file, int oflag, ...)
 {
+	int errno_orig = errno;
 	mode_t mode = 0;
 	if (oflag & (O_CREAT | __O_TMPFILE))
 	{
@@ -80,11 +83,13 @@ int open64(const char* file, int oflag, ...)
 		va_end(args);
 	}
 	record_path(file);
+	errno = errno_orig;
 	return open64_orig(file, oflag, mode);
 }
 
 int openat(int fd, const char* file, int oflag, ...)
 {
+	int errno_orig = errno;
 	mode_t mode = 0;
 	if (oflag & (O_CREAT | __O_TMPFILE))
 	{
@@ -94,11 +99,13 @@ int openat(int fd, const char* file, int oflag, ...)
 		va_end(args);
 	}
 	record_openat_path(fd, file);
+	errno = errno_orig;
 	return openat_orig(fd, file, oflag, mode);
 }
 
 int openat64(int fd, const char* file, int oflag, ...)
 {
+	int errno_orig = errno;
 	mode_t mode = 0;
 	if (oflag & (O_CREAT | __O_TMPFILE))
 	{
@@ -108,29 +115,37 @@ int openat64(int fd, const char* file, int oflag, ...)
 		va_end(args);
 	}
 	record_openat_path(fd, file);
+	errno = errno_orig;
 	return openat64_orig(fd, file, oflag, mode);
 }
 
 int execve(const char* path, char* const argv[], char* const envp[])
 {
+	int errno_orig = errno;
 	record_path(path);
+	errno = errno_orig;
 	return execve_orig(path, argv, envp);
 }
 
 int fexecve(int fd, char* const argv[], char* const envp[])
 {
+	int errno_orig = errno;
 	record_fd(fd);
+	errno = errno_orig;
 	return fexecve_orig(fd, argv, envp);
 }
 
 int execv(const char* path, char* const argv[])
 {
+	int errno_orig = errno;
 	record_path(path);
+	errno = errno_orig;
 	return execv_orig(path, argv);
 }
 
 int execle(const char* path, const char* arg, ...)
 {
+	int errno_orig = errno;
 	va_list args;
 	va_start(args, arg);
 	size_t argc = 1;
@@ -156,11 +171,13 @@ int execle(const char* path, const char* arg, ...)
 	va_end(args);
 	
 	record_path(path);
+	errno = errno_orig;
 	return execve_orig(path, static_argv, envp);
 }
 
 int execl(const char* path, const char* arg, ...)
 {
+	int errno_orig = errno;
 	va_list args;
 	va_start(args, arg);
 	size_t argc = 1;
@@ -185,17 +202,21 @@ int execl(const char* path, const char* arg, ...)
 	va_end(args);
 	
 	record_path(path);
+	errno = errno_orig;
 	return execv_orig(path, static_argv);
 }
 
 int execvp(const char* file, char* const argv[])
 {
+	int errno_orig = errno;
 	record_path_search(file);
+	errno = errno_orig;
 	return execvp_orig(file, argv);
 }
 
 int execlp(const char* file, const char* arg, ...)
 {
+	int errno_orig = errno;
 	va_list args;
 	va_start(args, arg);
 	size_t argc = 1;
@@ -220,12 +241,15 @@ int execlp(const char* file, const char* arg, ...)
 	va_end(args);
 	
 	record_path_search(file);
+	errno = errno_orig;
 	return execvp_orig(file, static_argv);
 }
 
 int execvpe(const char* file, char* const argv[], char* const envp[])
 {
+	int errno_orig = errno;
 	record_path_search(file);
+	errno = errno_orig;
 	return execvpe_orig(file, argv, envp);
 }
 
@@ -234,7 +258,9 @@ int posix_spawn(pid_t* pid, const char* path,
 	const posix_spawnattr_t* attrp,
 	char* const argv[], char* const envp[])
 {
+	int errno_orig = errno;
 	record_path(path);
+	errno = errno_orig;
 	return posix_spawn_orig(pid, path, file_actions, attrp, argv, envp);
 }
 
@@ -243,6 +269,8 @@ int posix_spawnp(pid_t* pid, const char* file,
 	const posix_spawnattr_t* attrp,
 	char* const argv[], char* const envp[])
 {
+	int errno_orig = errno;
 	record_path_search(file);
+	errno = errno_orig;
 	return posix_spawnp_orig(pid, file, file_actions, attrp, argv, envp);
 }
