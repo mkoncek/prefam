@@ -24,7 +24,7 @@ jobs:
           make -j8 manpage
       - name: Compile
         run: |
-          make -j8 compile
+          make -j8 test-compile
       - name: Test
         run: |
           make test
