@@ -1,4 +1,4 @@
-.PHONY: all compile test coverage manpage clean
+.PHONY: all compile test-compile test coverage manpage clean
 
 all: compile
 
@@ -25,11 +25,13 @@ target/test_derelativize: target/object_files/test_derelativize.c.o target/objec
 target/manpages/prefam.1: src/prefam.1.adoc | target/manpages/
 	asciidoctor -D target/manpages $<
 
-compile: target/libprefam.so
-
 manpage: target/manpages/prefam.1
 
-test: compile target/test_derelativize
+compile: target/libprefam.so
+
+test-compile: compile target/test_derelativize
+
+test: test-compile
 	@./test.sh target/libprefam.so
 
 coverage: CFLAGS += --coverage -fno-default-inline
