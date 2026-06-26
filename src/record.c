@@ -1,6 +1,7 @@
 #define _GNU_SOURCE
 
 #include "record.h"
+#include "util.h"
 
 #include <stdarg.h>
 #include <stddef.h>
@@ -174,6 +175,8 @@ static _Bool buffer_store_cwd(void)
 //! clear the buffer.
 static void buffer_record_output(void)
 {
+	static_buffer_end = buffer_derelativize(static_buffer, static_buffer_end);
+	
 	int written = 0;
 	
 	while (written != static_buffer_end)

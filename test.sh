@@ -2,6 +2,38 @@
 
 set -e
 
+################################################################################
+# Unit tests
+
+./target/test_derelativize "a" "a"
+./target/test_derelativize "." "."
+./target/test_derelativize "/a" "/a"
+./target/test_derelativize "/" "/."
+./target/test_derelativize "/a" "/./a"
+./target/test_derelativize "/.a" "/./.a"
+./target/test_derelativize "/a." "/./a."
+./target/test_derelativize "/a/" "/./a/"
+./target/test_derelativize "/a" "/./a"
+./target/test_derelativize "/a/" "/./a/"
+
+./target/test_derelativize "/" "/a/.."
+./target/test_derelativize "/" "/a/b/../.."
+./target/test_derelativize "/" "/a/../b/.."
+./target/test_derelativize "/" "/.."
+./target/test_derelativize "/a" "/../a"
+./target/test_derelativize "/a/c" "/a/b/../c"
+./target/test_derelativize "/a/b/c" "/a/./b/./c"
+./target/test_derelativize "/a/.b" "/a/.b"
+./target/test_derelativize "/a/..b" "/a/..b"
+./target/test_derelativize "/.a" "/.a/.b/.."
+./target/test_derelativize "/c" "/a/b/../../c"
+./target/test_derelativize "/b" "/a/../../b"
+./target/test_derelativize "/a/b/c" "/a/b/c"
+./target/test_derelativize "/a/c/d" "/a/b/../c/./d"
+./target/test_derelativize "/a/d" "/a/b/../c/../d"
+
+################################################################################
+
 testdir='target/testdir'
 rm -rf "${testdir}"
 mkdir "${testdir}"
