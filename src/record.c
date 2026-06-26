@@ -19,6 +19,7 @@
 static const char* static_output_fd_env = NULL;
 static int static_output_fd = 0;
 
+static _Thread_local _Bool static_suspended = 0;
 static _Thread_local int static_buffer_end = 0;
 static _Thread_local char static_buffer[PATH_MAX] = {};
 static _Thread_local char static_link_buffer[32] = "/proc/self/fd/";
@@ -43,23 +44,27 @@ static buffer_chunk buffer_chunk_from(const char* data, int length)
 __attribute__((format(printf, 1, 2)))
 static void log_warning(const char* fmt, ...)
 {
+	static_suspended = 1;
 	va_list args;
 	va_start(args, fmt);
 	fputs("[WARNING] prefam: ", stderr);
 	vfprintf(stderr, fmt, args);
 	fputs("\n", stderr);
 	va_end(args);
+	static_suspended = 0;
 }
 
 __attribute__((format(printf, 1, 2), noreturn))
 static void exit_with_error(const char* fmt, ...)
 {
+	static_suspended = 1;
 	va_list args;
 	va_start(args, fmt);
 	fputs("[ERROR] prefam: ", stderr);
 	vfprintf(stderr, fmt, args);
 	fputs("\n", stderr);
 	va_end(args);
+	static_suspended = 0;
 	exit(127);
 }
 
@@ -188,6 +193,10 @@ static void buffer_record_output(void)
 
 void record_path(const char* path)
 {
+	if (static_suspended)
+	{
+		return;
+	}
 	if (path == NULL)
 	{
 		return;
@@ -214,6 +223,10 @@ void record_path(const char* path)
 
 void record_fd(int fd)
 {
+	if (static_suspended)
+	{
+		return;
+	}
 	if (buffer_readlink(fd))
 	{
 		BUFFER_PUSH(chunk_newline);
@@ -223,6 +236,10 @@ void record_fd(int fd)
 
 void record_openat_path(int fd, const char* path)
 {
+	if (static_suspended)
+	{
+		return;
+	}
 	if (path == NULL)
 	{
 		return;
@@ -261,6 +278,10 @@ void record_openat_path(int fd, const char* path)
 
 void record_path_search(const char* path)
 {
+	if (static_suspended)
+	{
+		return;
+	}
 	if (path == NULL)
 	{
 		return;
