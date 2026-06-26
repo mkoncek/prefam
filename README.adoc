@@ -6,7 +6,8 @@ Preloaded file access monitor.
 
 In order to use this library you need to preload it and pass it the output file descriptor number via an environment variable `PREFAM_OUTPUT_FD`.
 
-The library not canonize or resolve the file paths that are passed into the preloaded file access functions.
+The library writes accessed file paths into the provided file descriptor as soon as the events happen.
+The format of the output is a line-separated list of file paths.
 
 .Example usage from command line:
 ----
