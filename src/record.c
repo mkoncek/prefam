@@ -285,7 +285,7 @@ void record_path_search(const char* path)
 					break;
 				}
 				
-				// Null-terminator is not path of the path name.
+				// Null-terminator is not part of the path name.
 				--static_buffer_end;
 				if (access(static_buffer, X_OK) == 0)
 				{
