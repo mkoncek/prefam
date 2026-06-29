@@ -1,44 +1,42 @@
 #!/bin/bash
 
-set -e
+set -ex
 
 ################################################################################
 # Unit tests
 
-./target/test_derelativize "a" "a"
-./target/test_derelativize "." "."
-./target/test_derelativize "/a" "/a"
-./target/test_derelativize "/" "/."
-./target/test_derelativize "/a" "/./a"
-./target/test_derelativize "/.a" "/./.a"
-./target/test_derelativize "/a." "/./a."
-./target/test_derelativize "/a/" "/./a/"
-./target/test_derelativize "/a" "/./a"
-./target/test_derelativize "/a/" "/./a/"
+${test_derelativize} "a" "a"
+${test_derelativize} "." "."
+${test_derelativize} "/a" "/a"
+${test_derelativize} "/" "/."
+${test_derelativize} "/a" "/./a"
+${test_derelativize} "/.a" "/./.a"
+${test_derelativize} "/a." "/./a."
+${test_derelativize} "/a/" "/./a/"
+${test_derelativize} "/a" "/./a"
+${test_derelativize} "/a/" "/./a/"
 
-./target/test_derelativize "/" "/a/.."
-./target/test_derelativize "/" "/a/b/../.."
-./target/test_derelativize "/" "/a/../b/.."
-./target/test_derelativize "/" "/.."
-./target/test_derelativize "/a" "/../a"
-./target/test_derelativize "/a/c" "/a/b/../c"
-./target/test_derelativize "/a/b/c" "/a/./b/./c"
-./target/test_derelativize "/a/.b" "/a/.b"
-./target/test_derelativize "/a/..b" "/a/..b"
-./target/test_derelativize "/.a" "/.a/.b/.."
-./target/test_derelativize "/c" "/a/b/../../c"
-./target/test_derelativize "/b" "/a/../../b"
-./target/test_derelativize "/a/b/c" "/a/b/c"
-./target/test_derelativize "/a/c/d" "/a/b/../c/./d"
-./target/test_derelativize "/a/d" "/a/b/../c/../d"
+${test_derelativize} "/" "/a/.."
+${test_derelativize} "/" "/a/b/../.."
+${test_derelativize} "/" "/a/../b/.."
+${test_derelativize} "/" "/.."
+${test_derelativize} "/a" "/../a"
+${test_derelativize} "/a/c" "/a/b/../c"
+${test_derelativize} "/a/b/c" "/a/./b/./c"
+${test_derelativize} "/a/.b" "/a/.b"
+${test_derelativize} "/a/..b" "/a/..b"
+${test_derelativize} "/.a" "/.a/.b/.."
+${test_derelativize} "/c" "/a/b/../../c"
+${test_derelativize} "/b" "/a/../../b"
+${test_derelativize} "/a/b/c" "/a/b/c"
+${test_derelativize} "/a/c/d" "/a/b/../c/./d"
+${test_derelativize} "/a/d" "/a/b/../c/../d"
 
 ################################################################################
 
 testdir='target/testdir'
 rm -rf "${testdir}"
 mkdir "${testdir}"
-
-libprefam="${1}"
 
 function test_command
 {

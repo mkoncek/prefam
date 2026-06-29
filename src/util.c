@@ -7,58 +7,58 @@ int buffer_derelativize(char* buffer, int length)
 		return length;
 	}
 	
-	_Bool absolute = (buffer[0] == '/');
-	int min_w = absolute ? 1 : 0;
-	int w = 0;
-	int r = 0;
+	const _Bool is_absolute = (buffer[0] == '/');
+	const int min_write_pos = is_absolute ? 1 : 0;
+	int write_pos = 0;
+	int read_pos = 0;
 	
-	while (r < length)
+	while (read_pos < length)
 	{
-		if (r + 1 < length && buffer[r] == '/' && buffer[r + 1] == '.')
+		if (read_pos + 1 < length && buffer[read_pos] == '/' && buffer[read_pos + 1] == '.')
 		{
-			if (r + 2 < length && buffer[r + 2] == '.'
-				&& (r + 3 >= length || buffer[r + 3] == '/' || buffer[r + 3] == '\n'))
+			if (read_pos + 2 < length && buffer[read_pos + 2] == '.'
+				&& (read_pos + 3 >= length || buffer[read_pos + 3] == '/' || buffer[read_pos + 3] == '\n'))
 			{
-				r += 3;
-				if (w > min_w)
+				read_pos += 3;
+				if (write_pos > min_write_pos)
 				{
-					--w;
-					while (w > min_w && buffer[w] != '/')
+					--write_pos;
+					while (write_pos > min_write_pos && buffer[write_pos] != '/')
 					{
-						--w;
+						--write_pos;
 					}
 				}
-				else if (w == 0 && absolute)
+				else if (write_pos == 0 && is_absolute)
 				{
 					buffer[0] = '/';
-					w = 1;
+					write_pos = 1;
 				}
 				continue;
 			}
-			if (r + 2 >= length || buffer[r + 2] == '/' || buffer[r + 2] == '\n')
+			if (read_pos + 2 >= length || buffer[read_pos + 2] == '/' || buffer[read_pos + 2] == '\n')
 			{
-				r += 2;
+				read_pos += 2;
 				continue;
 			}
 		}
 		
-		if (buffer[r] == '/' && w > 0 && buffer[w - 1] == '/')
+		if (buffer[read_pos] == '/' && write_pos > 0 && buffer[write_pos - 1] == '/')
 		{
-			++r;
+			++read_pos;
 			continue;
 		}
 		
-		buffer[w] = buffer[r];
-		++w;
-		++r;
+		buffer[write_pos] = buffer[read_pos];
+		++write_pos;
+		++read_pos;
 	}
 	
-	if (w == 0 && absolute)
+	if (write_pos == 0 && is_absolute)
 	{
 		buffer[0] = '/';
-		w = 1;
+		write_pos = 1;
 	}
 	
-	buffer[w] = '\0';
-	return w;
+	buffer[write_pos] = '\0';
+	return write_pos;
 }

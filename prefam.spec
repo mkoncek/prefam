@@ -21,10 +21,10 @@ BuildRequires:  asciidoctor
 %autosetup -p1 -C
 
 %build
-%{make_build} compile manpage
+%{make_build} test-compile manpage
 
 %install
-install -m 755 -p -D -t %{buildroot}%{_libdir} target/libprefam.so
+install -m 755 -p -D -t %{buildroot}%{_libdir} target/lib/libprefam.so
 install -m 644 -p -D -t %{buildroot}%{_mandir} target/manpages/*
 
 %check
