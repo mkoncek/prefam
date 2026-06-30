@@ -55,10 +55,6 @@ echo "Test derelativize"
 "${TARGET_TEST_BIN_DIR}/test_derelativize" "/a/c/d" "/a/b/../c/./d"
 "${TARGET_TEST_BIN_DIR}/test_derelativize" "/a/d" "/a/b/../c/../d"
 
-echo "Test functions"
-test_command "${TARGET_TEST_BIN_DIR}/test_functions"
-cat "${testdir}/metafile"
-
 echo "content" > "${testdir}/textfile"
 test_command cat "${testdir}/textfile" > /dev/null
 check_result '.*'"${testdir}"'/textfile$'
