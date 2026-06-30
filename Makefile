@@ -21,8 +21,10 @@ target/object_files/%.c.o: src/%.c Makefile | target/object_files/ target/depend
 target/lib/libprefam.so: target/object_files/preload.c.o target/object_files/record.c.o target/object_files/util.c.o Makefile | target/lib/
 	$(CC) $(CFLAGS) $(LDFLAGS) -shared -fpic -o $@ $(filter %.o,$^)
 
-target/test/test_derelativize: target/object_files/test_derelativize.c.o target/object_files/util.c.o Makefile | target/test/
+target/test/%: target/object_files/%.c.o Makefile | target/test/
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(filter %.o,$^)
+
+target/test/test_derelativize: target/object_files/util.c.o
 
 target/manpages/prefam.1: src/prefam.1.adoc | target/manpages/
 	asciidoctor -D target/manpages $<
@@ -33,8 +35,8 @@ compile: target/lib/libprefam.so
 
 test-compile: compile target/test/test_derelativize
 
-test: export libprefam = target/lib/libprefam.so
-test: export test_derelativize = target/test/test_derelativize
+test: export TARGET_LIB_DIR = target/lib
+test: export TARGET_TEST_BIN_DIR = target/test
 test: test-compile
 	@./test.sh
 

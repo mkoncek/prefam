@@ -1,36 +1,6 @@
 #!/bin/bash
 
-set -ex
-
-################################################################################
-# Unit tests
-
-${test_derelativize} "a" "a"
-${test_derelativize} "." "."
-${test_derelativize} "/a" "/a"
-${test_derelativize} "/" "/."
-${test_derelativize} "/a" "/./a"
-${test_derelativize} "/.a" "/./.a"
-${test_derelativize} "/a." "/./a."
-${test_derelativize} "/a/" "/./a/"
-${test_derelativize} "/a" "/./a"
-${test_derelativize} "/a/" "/./a/"
-
-${test_derelativize} "/" "/a/.."
-${test_derelativize} "/" "/a/b/../.."
-${test_derelativize} "/" "/a/../b/.."
-${test_derelativize} "/" "/.."
-${test_derelativize} "/a" "/../a"
-${test_derelativize} "/a/c" "/a/b/../c"
-${test_derelativize} "/a/b/c" "/a/./b/./c"
-${test_derelativize} "/a/.b" "/a/.b"
-${test_derelativize} "/a/..b" "/a/..b"
-${test_derelativize} "/.a" "/.a/.b/.."
-${test_derelativize} "/c" "/a/b/../../c"
-${test_derelativize} "/b" "/a/../../b"
-${test_derelativize} "/a/b/c" "/a/b/c"
-${test_derelativize} "/a/c/d" "/a/b/../c/./d"
-${test_derelativize} "/a/d" "/a/b/../c/../d"
+set -e
 
 ################################################################################
 
@@ -41,7 +11,7 @@ mkdir "${testdir}"
 function test_command
 {
 	exec 3>"${testdir}/metafile"
-	PREFAM_OUTPUT_FD=3 LD_PRELOAD="${libprefam}" "$@"
+	PREFAM_OUTPUT_FD=3 LD_PRELOAD="${TARGET_LIB_DIR}/libprefam.so" "$@"
 	exec 3>&-
 }
 
@@ -53,6 +23,41 @@ function check_result
 		return 1
 	fi
 }
+
+################################################################################
+# Unit tests
+
+echo "Test derelativize"
+"${TARGET_TEST_BIN_DIR}/test_derelativize" "a" "a"
+"${TARGET_TEST_BIN_DIR}/test_derelativize" "." "."
+"${TARGET_TEST_BIN_DIR}/test_derelativize" "/a" "/a"
+"${TARGET_TEST_BIN_DIR}/test_derelativize" "/" "/."
+"${TARGET_TEST_BIN_DIR}/test_derelativize" "/a" "/./a"
+"${TARGET_TEST_BIN_DIR}/test_derelativize" "/.a" "/./.a"
+"${TARGET_TEST_BIN_DIR}/test_derelativize" "/a." "/./a."
+"${TARGET_TEST_BIN_DIR}/test_derelativize" "/a/" "/./a/"
+"${TARGET_TEST_BIN_DIR}/test_derelativize" "/a" "/./a"
+"${TARGET_TEST_BIN_DIR}/test_derelativize" "/a/" "/./a/"
+
+"${TARGET_TEST_BIN_DIR}/test_derelativize" "/" "/a/.."
+"${TARGET_TEST_BIN_DIR}/test_derelativize" "/" "/a/b/../.."
+"${TARGET_TEST_BIN_DIR}/test_derelativize" "/" "/a/../b/.."
+"${TARGET_TEST_BIN_DIR}/test_derelativize" "/" "/.."
+"${TARGET_TEST_BIN_DIR}/test_derelativize" "/a" "/../a"
+"${TARGET_TEST_BIN_DIR}/test_derelativize" "/a/c" "/a/b/../c"
+"${TARGET_TEST_BIN_DIR}/test_derelativize" "/a/b/c" "/a/./b/./c"
+"${TARGET_TEST_BIN_DIR}/test_derelativize" "/a/.b" "/a/.b"
+"${TARGET_TEST_BIN_DIR}/test_derelativize" "/a/..b" "/a/..b"
+"${TARGET_TEST_BIN_DIR}/test_derelativize" "/.a" "/.a/.b/.."
+"${TARGET_TEST_BIN_DIR}/test_derelativize" "/c" "/a/b/../../c"
+"${TARGET_TEST_BIN_DIR}/test_derelativize" "/b" "/a/../../b"
+"${TARGET_TEST_BIN_DIR}/test_derelativize" "/a/b/c" "/a/b/c"
+"${TARGET_TEST_BIN_DIR}/test_derelativize" "/a/c/d" "/a/b/../c/./d"
+"${TARGET_TEST_BIN_DIR}/test_derelativize" "/a/d" "/a/b/../c/../d"
+
+echo "Test functions"
+test_command "${TARGET_TEST_BIN_DIR}/test_functions"
+cat "${testdir}/metafile"
 
 echo "content" > "${testdir}/textfile"
 test_command cat "${testdir}/textfile" > /dev/null

@@ -11,7 +11,7 @@ prefam - preloaded file access monitor
 *PREFAM_OUTPUT_FD*=_fd_ *LD_PRELOAD*=_libdir_/libprefam.so _program_ [args...]
 
 == DESCRIPTION
-_Prefam_ is a library that overrides system calls `open*`, `exec*`, `posix_spawn*`, records which file paths have been accessed by these system calls and outputs the paths.
+_Prefam_ is a library that overrides system calls `open*`, `exec*`, `posix_spawn*` and records which file paths have been accessed by these system calls.
 
 The library writes accessed file paths into the provided file descriptor as soon as the events happen.
 The format of the output is a line-separated list of file paths.

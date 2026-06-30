@@ -37,5 +37,9 @@ int main(int argc, const char** argv)
 		printf("  actual: %s\n", buffer);
 		return 1;
 	}
+	else
+	{
+		printf("ok: %s -> %s\n", actual, expected);
+	}
 	return 0;
 }

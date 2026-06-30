@@ -15,7 +15,8 @@ BuildRequires:  make
 BuildRequires:  asciidoctor
 
 %description
-%{summary}.
+Prefam is a library that overrides system calls open*, exec*, posix_spawn* and records
+which file paths have been accessed by these system calls.
 
 %prep
 %autosetup -p1 -C

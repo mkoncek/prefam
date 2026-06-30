@@ -1,6 +1,9 @@
 = Prefam
+:source-highlighter: rouge
 
 Preloaded file access monitor.
+
+_Prefam_ is a library that overrides system calls `open*`, `exec*`, `posix_spawn*` and records which file paths have been accessed by these system calls.
 
 == Usage
 
@@ -10,8 +13,12 @@ The library writes accessed file paths into the provided file descriptor as soon
 The format of the output is a line-separated list of file paths.
 
 .Example usage from command line:
+[source,bash]
 ----
-PREFAM_OUTPUT_FD=${fd} LD_PRELOAD=${libdir}/libprefam.so program [args...]
+export PREFAM_OUTPUT_FD=3
+exec ${PREFAM_OUTPUT_FD}>output.log
+LD_PRELOAD=${libdir}/libprefam.so command [args...]
+exec ${PREFAM_OUTPUT_FD}>&-
 ----
 
 == Building
