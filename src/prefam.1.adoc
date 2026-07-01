@@ -28,12 +28,11 @@ In case of a fatal error the library exits the whole program with *127*.
 .Example usage from shell:
 [source,bash]
 ----
-export PREFAM_OUTPUT_FD=3
-exec {PREFAM_OUTPUT_FD}>output.log
+exec 3>output.log
 
-LD_PRELOAD=${libdir}/libprefam.so.1 command [args...]
+PREFAM_OUTPUT_FD=3 LD_PRELOAD=${libdir}/libprefam.so.1 command [args...]
 
-exec {PREFAM_OUTPUT_FD}>&-
+exec 3>&-
 ----
 
 == REPORTING BUGS
