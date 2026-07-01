@@ -25,7 +25,7 @@ In case of a fatal error the library exits the whole program with *127*.
 *PREFAM_OUTPUT_FD*:: The numeric file descriptor into which the library writes the accessed paths.
 
 == EXAMPLE
-.Example usage from Bash:
+.Example usage from shell:
 [source,bash]
 ----
 export PREFAM_OUTPUT_FD=3

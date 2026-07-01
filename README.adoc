@@ -12,7 +12,7 @@ In order to use this library you need to preload it and pass it the output file 
 The library writes accessed file paths into the provided file descriptor as soon as the events happen.
 The format of the output is a line-separated list of file paths.
 
-.Example usage from Bash:
+.Example usage from shell:
 [source,bash]
 ----
 export PREFAM_OUTPUT_FD=3
