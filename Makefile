@@ -3,7 +3,6 @@ MAKEFLAGS += -r
 .PHONY: all compile test-compile test coverage manpage clean
 .SECONDARY:
 
-CC ?= cc
 CFLAGS ?= -Wall -Wextra -Wconversion -Wno-varargs -Og -g -flto
 CFLAGS += -std=c99
 LDFLAGS ?= -flto
@@ -20,7 +19,7 @@ target/object_files/%.c.o: src/%.c Makefile | target/object_files/ target/depend
 	$(CC) $(CPPFLAGS) $(CFLAGS) -fpic -MMD -MP -MF target/dependencies/$*.c.mk -c -o $@ $<
 
 target/lib/libprefam.so: target/object_files/preload.c.o target/object_files/record.c.o target/object_files/util.c.o Makefile | target/lib/
-	$(CC) $(CFLAGS) $(LDFLAGS) -shared -fpic -o $@ $(filter %.o,$^)
+	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $(filter %.o,$^)
 
 target/test/%: target/object_files/%.c.o Makefile | target/test/
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(filter %.o,$^)
