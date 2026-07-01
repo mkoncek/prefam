@@ -26,6 +26,8 @@ target/test/%: target/object_files/%.c.o Makefile | target/test/
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(filter %.o,$^)
 
 target/test/test_derelativize: target/object_files/util.c.o
+target/test/test_open: target/object_files/preload.c.o target/object_files/record.c.o target/object_files/util.c.o
+target/test/test_exec: target/object_files/preload.c.o target/object_files/record.c.o target/object_files/util.c.o
 
 target/manpages/prefam.1: src/prefam.1.adoc | target/manpages/
 	asciidoctor -D target/manpages $<
@@ -34,7 +36,7 @@ manpage: target/manpages/prefam.1
 
 compile: target/lib/libprefam.so
 
-test-compile: compile target/test/test_derelativize
+test-compile: compile target/test/test_derelativize target/test/test_open target/test/test_exec
 
 test: export TARGET_LIB_DIR = target/lib
 test: export TARGET_TEST_BIN_DIR = target/test
