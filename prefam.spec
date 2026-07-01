@@ -1,8 +1,8 @@
-%global git_ref 3b75af20eebe6ecdad3c8b9cc944e240e742b9ed
+%global git_ref dc1edba89d93d9aa6cf9a7d0ce884a8f35a0869e
 %global git_short_ref %(echo %{git_ref} | cut -b -7)
 
 Name:           prefam
-Version:        0^202606302138.%{git_short_ref}
+Version:        0^202607011323.%{git_short_ref}
 Release:        %autorelease
 Summary:        Preloaded file access monitor
 License:        Apache-2.0
@@ -15,8 +15,8 @@ BuildRequires:  make
 BuildRequires:  asciidoctor
 
 %description
-Prefam is a library that overrides system calls open*, exec*, posix_spawn* and records
-which file paths have been accessed by these system calls.
+Prefam is a library that overrides system calls open*, exec*, posix_spawn* and
+records which file paths have been accessed by these system calls.
 
 %prep
 %autosetup -p1 -C
