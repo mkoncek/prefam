@@ -17,7 +17,6 @@
 
 #include <linux/limits.h>
 
-static const char* static_output_fd_env = NULL;
 static int static_output_fd = 0;
 
 static _Thread_local _Bool static_suspended = 0;
@@ -72,15 +71,15 @@ static void exit_with_error(const char* fmt, ...)
 __attribute__((constructor))
 static void constructor(void)
 {
-	static_output_fd_env = getenv("PREFAM_OUTPUT_FD");
-	if (static_output_fd_env == NULL)
+	const char* env_output_fd = getenv("PREFAM_OUTPUT_FD");
+	if (env_output_fd == NULL)
 	{
 		exit_with_error("PREFAM_OUTPUT_FD is not set");
 	}
-	static_output_fd = atoi(static_output_fd_env);
+	static_output_fd = atoi(env_output_fd);
 	if (static_output_fd == 0)
 	{
-		exit_with_error("unable to read number from PREFAM_OUTPUT_FD: %s", static_output_fd_env);
+		exit_with_error("unable to read number from PREFAM_OUTPUT_FD: %s", env_output_fd);
 	}
 }
 
