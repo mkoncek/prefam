@@ -1,6 +1,7 @@
 MAKEFLAGS += -r
 
 .PHONY: all compile test-compile test coverage manpage clean
+.SECONDARY:
 
 CC ?= cc
 CFLAGS ?= -Wall -Wextra -Wconversion -Wno-varargs -Og -g -flto
