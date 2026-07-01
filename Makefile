@@ -3,7 +3,7 @@ MAKEFLAGS += -r
 soversion := 1
 
 .PHONY: all compile test-compile test coverage manpage clean
-.SECONDARY:
+.PRECIOUS: target/object_files/%.c.o
 
 CFLAGS ?= -Wall -Wextra -Wconversion -Wno-varargs -Og -g -flto
 CFLAGS += -std=c99
