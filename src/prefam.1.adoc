@@ -8,16 +8,33 @@
 prefam - preloaded file access monitor
 
 == SYNOPSIS
-*PREFAM_OUTPUT_FD*=_fd_ *LD_PRELOAD*=_libdir_/libprefam.so _program_ [args...]
+*PREFAM_OUTPUT_FD*=_fd_ *LD_PRELOAD*=_libdir_/libprefam.so.1 *command* [args...]
 
 == DESCRIPTION
-_Prefam_ is a library that overrides system calls `open*`, `exec*`, `posix_spawn*` and records which file paths have been accessed by these system calls.
+_Prefam_ is a library that overrides system calls *+open*+*, *+exec*+* and *+posix_spawn*+* and records which file paths have been accessed by these system calls.
 
 The library writes accessed file paths into the provided file descriptor as soon as the events happen.
-The format of the output is a line-separated list of file paths.
+The accessed file paths written to the output file descriptor are separated by a newline.
+
+Warning and error messages are printed on the standard error output.
+
+== EXIT STATUS
+In case of a fatal error the library exits the whole program with *127*.
 
 == ENVIRONMENT VARIABLES
-PREFAM_OUTPUT_FD:: The numeric file descriptor into which the library writes the accessed paths.
+*PREFAM_OUTPUT_FD*:: The numeric file descriptor into which the library writes the accessed paths.
+
+== EXAMPLE
+.Example usage from Bash:
+[source,bash]
+----
+export PREFAM_OUTPUT_FD=3
+exec {PREFAM_OUTPUT_FD}>output.log
+
+LD_PRELOAD=${libdir}/libprefam.so.1 command [args...]
+
+exec {PREFAM_OUTPUT_FD}>&-
+----
 
 == REPORTING BUGS
 Bugs should be reported through the issue tracker at Github: https://github.com/mkoncek/prefam/issues.
