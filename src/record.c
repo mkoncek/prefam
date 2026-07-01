@@ -32,7 +32,7 @@ typedef struct
 
 static const buffer_chunk chunk_zero = {.data = "\0", .length = 1};
 static const buffer_chunk chunk_slash = {.data = "/", .length = 1};
-static const buffer_chunk chunk_newline = {.data = "\n", .length = 1};
+static const buffer_chunk chunk_delimiter = {.data = "\n", .length = 1};
 
 static buffer_chunk buffer_chunk_from(const char* data, int length)
 {
@@ -208,7 +208,7 @@ void record_path(const char* path)
 	{
 		BUFFER_PUSH(
 			buffer_chunk_from(path, path_length),
-			chunk_newline,
+			chunk_delimiter,
 		);
 		buffer_record_output();
 	}
@@ -217,7 +217,7 @@ void record_path(const char* path)
 		BUFFER_PUSH(
 			chunk_slash,
 			buffer_chunk_from(path, path_length),
-			chunk_newline,
+			chunk_delimiter,
 		);
 		buffer_record_output();
 	}
@@ -231,7 +231,7 @@ void record_fd(int fd)
 	}
 	if (buffer_readlink(fd))
 	{
-		BUFFER_PUSH(chunk_newline);
+		BUFFER_PUSH(chunk_delimiter);
 		buffer_record_output();
 	}
 }
@@ -251,7 +251,7 @@ void record_openat_path(int fd, const char* path)
 	{
 		BUFFER_PUSH(
 			buffer_chunk_from(path, path_length),
-			chunk_newline,
+			chunk_delimiter,
 		);
 		buffer_record_output();
 	}
@@ -262,7 +262,7 @@ void record_openat_path(int fd, const char* path)
 			BUFFER_PUSH(
 				chunk_slash,
 				buffer_chunk_from(path, path_length),
-				chunk_newline,
+				chunk_delimiter,
 			);
 			buffer_record_output();
 		}
@@ -272,7 +272,7 @@ void record_openat_path(int fd, const char* path)
 		BUFFER_PUSH(
 			chunk_slash,
 			buffer_chunk_from(path, path_length),
-			chunk_newline,
+			chunk_delimiter,
 		);
 		buffer_record_output();
 	}
