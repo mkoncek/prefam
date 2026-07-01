@@ -1,8 +1,5 @@
-%global git_ref dc1edba89d93d9aa6cf9a7d0ce884a8f35a0869e
-%global git_short_ref %(echo %{git_ref} | cut -b -7)
-
 Name:           prefam
-Version:        0^202607011323.%{git_short_ref}
+Version:        1.0.0
 Release:        %autorelease
 Summary:        Preloaded file access monitor
 License:        Apache-2.0
@@ -25,7 +22,7 @@ records which file paths have been accessed by these system calls.
 %{make_build} test-compile manpage
 
 %install
-install -m 755 -p -D -t %{buildroot}%{_libdir} target/lib/libprefam.so
+install -m 755 -p -D -t %{buildroot}%{_libdir} target/lib/libprefam.so.1
 install -m 644 -p -D -t %{buildroot}%{_mandir} target/manpages/*
 
 %check
@@ -34,7 +31,7 @@ install -m 644 -p -D -t %{buildroot}%{_mandir} target/manpages/*
 %files
 %license LICENSE
 %doc README.adoc
-%{_libdir}/libprefam.so
+%{_libdir}/libprefam.so.1
 %{_mandir}/*
 
 %changelog

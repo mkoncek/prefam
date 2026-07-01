@@ -1,5 +1,7 @@
 MAKEFLAGS += -r
 
+soversion := 1
+
 .PHONY: all compile test-compile test coverage manpage clean
 .SECONDARY:
 
@@ -18,8 +20,8 @@ clean:
 target/object_files/%.c.o: src/%.c Makefile | target/object_files/ target/dependencies/
 	$(CC) $(CPPFLAGS) $(CFLAGS) -fpic -MMD -MP -MF target/dependencies/$*.c.mk -c -o $@ $<
 
-target/lib/libprefam.so: target/object_files/preload.c.o target/object_files/record.c.o target/object_files/util.c.o Makefile | target/lib/
-	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $(filter %.o,$^)
+target/lib/libprefam.so.$(soversion): target/object_files/preload.c.o target/object_files/record.c.o target/object_files/util.c.o Makefile | target/lib/
+	$(CC) $(CFLAGS) $(LDFLAGS) -shared -Wl,-soname,$(@F) -o $@ $(filter %.o,$^)
 
 target/test/%: target/object_files/%.c.o Makefile | target/test/
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(filter %.o,$^)
@@ -33,11 +35,11 @@ target/manpages/prefam.1: src/prefam.1.adoc | target/manpages/
 
 manpage: target/manpages/prefam.1
 
-compile: target/lib/libprefam.so
+compile: target/lib/libprefam.so.$(soversion)
 
 test-compile: compile target/test/test_derelativize target/test/test_open target/test/test_exec
 
-test: export TARGET_LIB_DIR = target/lib
+test: export TARGET_LIB = target/lib/libprefam.so.$(soversion)
 test: export TARGET_TEST_BIN_DIR = target/test
 test: test-compile
 	@./test.sh

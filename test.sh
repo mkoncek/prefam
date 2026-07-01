@@ -11,7 +11,7 @@ mkdir "${testdir}"
 function test_command
 {
 	exec 3>"${testdir}/metafile"
-	PREFAM_OUTPUT_FD=3 LD_PRELOAD="${TARGET_LIB_DIR}/libprefam.so" "$@"
+	PREFAM_OUTPUT_FD=3 LD_PRELOAD="${TARGET_LIB}" "$@"
 	exec 3>&-
 }
 
@@ -116,7 +116,7 @@ mkdir -p "${testdir}/bin"
 printf '#!/nonexistent_interp\n' > "${testdir}/bin/bad_shebang"
 chmod +x "${testdir}/bin/bad_shebang"
 exec 3>"${testdir}/metafile"
-PATH="${testdir}/bin:/usr/bin" PREFAM_OUTPUT_FD=3 LD_PRELOAD="${TARGET_LIB_DIR}/libprefam.so" env bad_shebang 2>/dev/null || true
+PATH="${testdir}/bin:/usr/bin" PREFAM_OUTPUT_FD=3 LD_PRELOAD="${TARGET_LIB}" env bad_shebang 2>/dev/null || true
 exec 3>&-
 check_result '.*bad_shebang$'
 
