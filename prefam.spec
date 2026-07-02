@@ -33,7 +33,7 @@ install -m 644 -p -D -t %{buildroot}%{_mandir} target/manpages/*
 %{make_build} test
 
 %files
-%license LICENSE
+%license LICENSE NOTICE
 %doc README.adoc
 %{_libdir}/libprefam.so.1
 %{_mandir}/*
