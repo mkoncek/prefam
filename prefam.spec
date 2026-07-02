@@ -15,7 +15,7 @@ BuildRequires:  asciidoctor
 Prefam is a library that overrides system calls open*, exec*, posix_spawn* and
 records which file paths have been accessed by these system calls.
 
-It works by preloading a shared library via `LD_PRELOAD`, which means it only
+It works by preloading a shared library via LD_PRELOAD, which means it only
 intercepts dynamically linked C library calls and not raw system calls made via
 syscall or inline assembly.
 
