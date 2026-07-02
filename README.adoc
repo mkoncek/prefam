@@ -3,16 +3,18 @@
 
 Preloaded file access monitor.
 
-_Prefam_ is a small and fast library that overrides system calls `open*`, `exec*`, `posix_spawn*` and records which file paths have been accessed by these system calls.
+_Prefam_ is a small and fast library that interposes C library functions `open*`, `exec*`, `posix_spawn*` and records which file paths have been accessed by these functions.
 
-While it is not as robust as using `fanotify` or other kernel-level instrumentation, for example eBPF, it can be easily hooked onto programs from user space.
+It works by preloading a shared library via `LD_PRELOAD`, which means it only intercepts dynamically linked C library calls and not raw system calls made via `syscall` or inline assembly.
+While it is not as robust as using `fanotify` or other kernel-level instrumentation such as _eBPF_ it can be easily hooked onto programs from user space.
 
 == Usage
-
 In order to use this library you need to preload it and pass it the output file descriptor number via an environment variable `PREFAM_OUTPUT_FD`.
 
 The library writes accessed file paths into the provided file descriptor as soon as the events happen.
-The format of the output is a line-separated list of file paths.
+The accessed file paths written to the output are separated by newlines.
+
+Warning and error messages are printed on the standard error output.
 
 .Example usage from shell:
 [source,bash]
@@ -25,27 +27,31 @@ exec 3>&-
 ----
 
 == Building
+The library is written in C, compatible with revision C99.
+It can be built using either GCC or Clang.
+The build tooling uses Make.
 
-Build the project:
+The produced library is versioned and should be installed as such.
+Major versions remain API-compatible.
 
+.Building the library
 ----
 $ make compile
 ----
 
-Build manual page:
-
-----
-$ make manpage
-----
-
-Run tests:
-
+.Running tests
 ----
 $ make test
 ----
 
-Generate coverage report:
-
+.Generating coverage report
+Coverage report is generated using tools `genhtml` and `lcov`.
 ----
 $ make coverage
+----
+
+.Manual page
+Manual page is generated using `asciidoctor`.
+----
+$ make manpage
 ----
