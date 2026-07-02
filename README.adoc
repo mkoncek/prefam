@@ -35,23 +35,23 @@ The build tooling uses Make.
 The produced library is versioned and should be installed as such.
 Major versions remain API-compatible.
 
-.Building the library
+=== Building the library
 ----
 $ make compile
 ----
 
-.Running tests
+=== Running tests
 ----
 $ make test
 ----
 
-.Generating coverage report
+=== Generating coverage report
 Coverage report is generated using tools `genhtml` and `lcov`.
 ----
 $ make coverage
 ----
 
-.Manual page
+=== Manual page
 Manual page is generated using `asciidoctor`.
 ----
 $ make manpage
