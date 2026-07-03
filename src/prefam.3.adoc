@@ -42,6 +42,9 @@ exec {fd}>output.log
 exec {fd}>&-
 ----
 
+== SEE ALSO
+*prefam*(1)
+
 == REPORTING BUGS
 Bugs should be reported through the issue tracker at Github: https://github.com/mkoncek/prefam/issues.
 

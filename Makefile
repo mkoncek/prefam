@@ -2,7 +2,7 @@ MAKEFLAGS += -r
 
 soversion := 1
 
-.PHONY: all compile test-compile test coverage manpage clean
+.PHONY: all compile test-compile test coverage manpages clean
 .PRECIOUS: target/object_files/%.c.o
 
 CFLAGS ?= -Wall -Wextra -Wconversion -Wno-varargs -Og -g -flto
@@ -33,7 +33,7 @@ target/test/test_exec: target/object_files/preload.c.o target/object_files/recor
 target/manpages/%: src/%.adoc | target/manpages/
 	asciidoctor -D target/manpages $<
 
-manpage: target/manpages/prefam.3
+manpages: target/manpages/prefam.1 target/manpages/prefam.3
 
 compile: target/lib/libprefam.so.$(soversion)
 

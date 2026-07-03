@@ -30,9 +30,9 @@ jobs:
         run: |
           dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-${{ matrix.version }}.noarch.rpm
           dnf -y install gcc make asciidoctor
-      - name: Build manpage
+      - name: Build manpages
         run: |
-          make -j$(nproc) manpage
+          make -j$(nproc) manpages
       - name: Compile
         run: |
           make -j$(nproc) test-compile

@@ -1,0 +1,43 @@
+= prefam(1)
+:doctype: manpage
+:backend: manpage
+:mansource: PREFAM
+:manmanual: Prefam Manual
+
+== NAME
+prefam - preloaded file access monitor
+
+== SYNOPSIS
+*prefam* [*-a*] [*-d* _fd_] _file_ _command_ [_args..._]
+
+== DESCRIPTION
+The *prefam* command runs _command_ with the *libprefam* library preloaded via *LD_PRELOAD* and records the file paths accessed by the command into _file_.
+
+See *prefam*(3) for details on the preloaded library.
+
+== OPTIONS
+*-a*::
+Append to _file_ instead of truncating it.
+
+*-d* _fd_::
+Use _fd_ as the file descriptor number for output.
+If not provided, a file descriptor is allocated automatically.
+
+== EXIT STATUS
+*prefam* exits with the exit status of the executed _command_.
+
+== EXAMPLE
+[subs="+quotes"]
+----
+$ *prefam* output.log make compile
+$ *prefam* -a output.log make test
+----
+
+== SEE ALSO
+*prefam*(3)
+
+== REPORTING BUGS
+Bugs should be reported through the issue tracker at Github: https://github.com/mkoncek/prefam/issues.
+
+== AUTHOR
+Written by Marián Konček.

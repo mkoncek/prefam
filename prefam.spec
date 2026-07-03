@@ -23,9 +23,10 @@ syscall or inline assembly.
 %autosetup -p1 -C
 
 %build
-%{make_build} test-compile manpage
+%{make_build} test-compile manpages
 
 %install
+install -m 755 -p -D -t %{buildroot}%{_bindir} src/prefam
 install -m 755 -p -D -t %{buildroot}%{_libdir} target/lib/libprefam.so.1
 install -m 644 -p -D -t %{buildroot}%{_mandir} target/manpages/*
 
@@ -35,6 +36,7 @@ install -m 644 -p -D -t %{buildroot}%{_mandir} target/manpages/*
 %files
 %license LICENSE NOTICE
 %doc README.adoc
+%{_bindir}/prefam
 %{_libdir}/libprefam.so.1
 %{_mandir}/*
 
