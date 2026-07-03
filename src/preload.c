@@ -12,7 +12,7 @@
 #include <unistd.h>
 #include <spawn.h>
 
-static _Thread_local char* static_argv[4096] = {};
+static _Thread_local char* static_argv[128];
 
 #define DECLARE_FUNCTION_POINTER(name) static __typeof__(name)* name##_orig = NULL
 #define ASSIGN_FUNCTION_POINTER(name) name##_orig = (__typeof__(name##_orig))dlsym(RTLD_NEXT, #name)
@@ -146,64 +146,48 @@ int execv(const char* path, char* const argv[])
 int execle(const char* path, const char* arg, ...)
 {
 	int errno_orig = errno;
+	const size_t limit = sizeof(static_argv) / sizeof(static_argv[0]);
 	va_list args;
 	va_start(args, arg);
-	size_t argc = 1;
-	while (va_arg(args, const char*) != NULL)
-	{
-		argc++;
-	}
-	char* const* envp = va_arg(args, char* const*);
-	va_end(args);
-	
-	if (argc + 1 > sizeof(static_argv) / sizeof(static_argv[0]))
-	{
-		errno = E2BIG;
-		return -1;
-	}
 	static_argv[0] = (char*)arg;
-	va_start(args, arg);
-	for (size_t i = 1; i < argc; i++)
+	for (size_t i = 1; i < limit; ++i)
 	{
 		static_argv[i] = va_arg(args, char*);
+		if (static_argv[i] == NULL)
+		{
+			char* const* envp = va_arg(args, char* const*);
+			va_end(args);
+			record_path(path);
+			errno = errno_orig;
+			return execve_orig(path, static_argv, envp);
+		}
 	}
-	static_argv[argc] = NULL;
 	va_end(args);
-	
-	record_path(path);
-	errno = errno_orig;
-	return execve_orig(path, static_argv, envp);
+	errno = E2BIG;
+	return -1;
 }
 
 int execl(const char* path, const char* arg, ...)
 {
 	int errno_orig = errno;
+	const size_t limit = sizeof(static_argv) / sizeof(static_argv[0]);
 	va_list args;
 	va_start(args, arg);
-	size_t argc = 1;
-	while (va_arg(args, const char*) != NULL)
-	{
-		argc++;
-	}
-	va_end(args);
-	
-	if (argc + 1 > sizeof(static_argv) / sizeof(static_argv[0]))
-	{
-		errno = E2BIG;
-		return -1;
-	}
 	static_argv[0] = (char*)arg;
-	va_start(args, arg);
-	for (size_t i = 1; i < argc; i++)
+	for (size_t i = 1; i < limit; ++i)
 	{
 		static_argv[i] = va_arg(args, char*);
+		if (static_argv[i] == NULL)
+		{
+			va_end(args);
+			record_path(path);
+			errno = errno_orig;
+			return execv_orig(path, static_argv);
+		}
 	}
-	static_argv[argc] = NULL;
 	va_end(args);
-	
-	record_path(path);
-	errno = errno_orig;
-	return execv_orig(path, static_argv);
+	errno = E2BIG;
+	return -1;
 }
 
 int execvp(const char* file, char* const argv[])
@@ -217,32 +201,24 @@ int execvp(const char* file, char* const argv[])
 int execlp(const char* file, const char* arg, ...)
 {
 	int errno_orig = errno;
+	const size_t limit = sizeof(static_argv) / sizeof(static_argv[0]);
 	va_list args;
 	va_start(args, arg);
-	size_t argc = 1;
-	while (va_arg(args, const char*) != NULL)
-	{
-		argc++;
-	}
-	va_end(args);
-	
-	if (argc + 1 > sizeof(static_argv) / sizeof(static_argv[0]))
-	{
-		errno = E2BIG;
-		return -1;
-	}
 	static_argv[0] = (char*)arg;
-	va_start(args, arg);
-	for (size_t i = 1; i < argc; i++)
+	for (size_t i = 1; i < limit; ++i)
 	{
 		static_argv[i] = va_arg(args, char*);
+		if (static_argv[i] == NULL)
+		{
+			va_end(args);
+			record_path_search(file);
+			errno = errno_orig;
+			return execvp_orig(file, static_argv);
+		}
 	}
-	static_argv[argc] = NULL;
 	va_end(args);
-	
-	record_path_search(file);
-	errno = errno_orig;
-	return execvp_orig(file, static_argv);
+	errno = E2BIG;
+	return -1;
 }
 
 int execvpe(const char* file, char* const argv[], char* const envp[])
