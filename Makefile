@@ -30,10 +30,10 @@ target/test/test_derelativize: target/object_files/util.c.o
 target/test/test_open: target/object_files/preload.c.o target/object_files/record.c.o target/object_files/util.c.o
 target/test/test_exec: target/object_files/preload.c.o target/object_files/record.c.o target/object_files/util.c.o
 
-target/manpages/prefam.1: src/prefam.1.adoc | target/manpages/
+target/manpages/%: src/%.adoc | target/manpages/
 	asciidoctor -D target/manpages $<
 
-manpage: target/manpages/prefam.1
+manpage: target/manpages/prefam.3
 
 compile: target/lib/libprefam.so.$(soversion)
 

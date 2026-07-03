@@ -1,4 +1,4 @@
-= prefam(1)
+= prefam(3)
 :doctype: manpage
 :backend: manpage
 :mansource: PREFAM
@@ -8,15 +8,24 @@
 prefam - preloaded file access monitor
 
 == SYNOPSIS
-*PREFAM_OUTPUT_FD*=_fd_ *LD_PRELOAD*=_libdir_/libprefam.so.1 *command* [args...]
+*PREFAM_OUTPUT_FD*=_fd_ *LD_PRELOAD*=libprefam.so.1 *command* [args...]
 
 == DESCRIPTION
-_Prefam_ is a library that overrides system calls *+open*+*, *+exec*+* and *+posix_spawn*+* and records which file paths have been accessed by these system calls.
+_Prefam_ is a library that overrides system calls *+open*+*, *+fopen*+*, *+exec*+* and *+posix_spawn*+* and records which file paths have been accessed by these system calls.
 
 The library writes accessed file paths into the provided file descriptor as soon as the events happen.
 The accessed file paths written to the output are separated by newlines.
 
 Warning and error messages are printed on the standard error output.
+
+=== Preloaded functions
+open, open64, openat, openat64
+
+fopen, fopen64, freopen, freopen64, opendir, fdopendir
+
+execve, fexecve, execv, execle, execl, execvp, execlp, execvpe
+
+posix_spawn, posix_spawnp
 
 == EXIT STATUS
 In case of a fatal error the library exits the whole program with *127*.
@@ -28,9 +37,9 @@ In case of a fatal error the library exits the whole program with *127*.
 .Example usage from shell:
 [subs="+quotes"]
 ----
-exec 3>output.log
-*PREFAM_OUTPUT_FD*=3 *LD_PRELOAD*=libprefam.so.1 *command* _[args...]_
-exec 3>&-
+exec {fd}>output.log
+*PREFAM_OUTPUT_FD*={fd} *LD_PRELOAD*=libprefam.so.1 *command* _[args...]_
+exec {fd}>&-
 ----
 
 == REPORTING BUGS
