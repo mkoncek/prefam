@@ -18,8 +18,8 @@
 static _Thread_local char* static_argv[128];
 
 #define DECLARE_FUNCTION_POINTER(name) static __typeof__(name)* name##_orig = NULL
-#define ASSIGN_FUNCTION_POINTER(name) name##_orig = (__typeof__(name##_orig))dlsym(RTLD_NEXT, #name)
-#define ENSURE_FUNCTION_POINTER(name) do { if (name##_orig == NULL) ASSIGN_FUNCTION_POINTER(name); } while (0)
+#define RESOLVE_FUNCTION_POINTER(name) { if (name##_orig == NULL) {\
+	name##_orig = (__typeof__(name##_orig))dlsym(RTLD_NEXT, #name); } }
 
 DECLARE_FUNCTION_POINTER(open);
 DECLARE_FUNCTION_POINTER(open64);
@@ -36,45 +36,18 @@ DECLARE_FUNCTION_POINTER(fdopendir);
 DECLARE_FUNCTION_POINTER(execve);
 DECLARE_FUNCTION_POINTER(fexecve);
 DECLARE_FUNCTION_POINTER(execv);
-DECLARE_FUNCTION_POINTER(execle);
-DECLARE_FUNCTION_POINTER(execl);
+// DECLARE_FUNCTION_POINTER(execle);
+// DECLARE_FUNCTION_POINTER(execl);
 DECLARE_FUNCTION_POINTER(execvp);
-DECLARE_FUNCTION_POINTER(execlp);
+// DECLARE_FUNCTION_POINTER(execlp);
 DECLARE_FUNCTION_POINTER(execvpe);
 
 DECLARE_FUNCTION_POINTER(posix_spawn);
 DECLARE_FUNCTION_POINTER(posix_spawnp);
 
-__attribute__((constructor))
-static void constructor(void)
-{
-	ASSIGN_FUNCTION_POINTER(open);
-	ASSIGN_FUNCTION_POINTER(open64);
-	ASSIGN_FUNCTION_POINTER(openat);
-	ASSIGN_FUNCTION_POINTER(openat64);
-	
-	ASSIGN_FUNCTION_POINTER(fopen);
-	ASSIGN_FUNCTION_POINTER(fopen64);
-	ASSIGN_FUNCTION_POINTER(freopen);
-	ASSIGN_FUNCTION_POINTER(freopen64);
-	ASSIGN_FUNCTION_POINTER(opendir);
-	ASSIGN_FUNCTION_POINTER(fdopendir);
-	
-	ASSIGN_FUNCTION_POINTER(execve);
-	ASSIGN_FUNCTION_POINTER(fexecve);
-	ASSIGN_FUNCTION_POINTER(execv);
-	ASSIGN_FUNCTION_POINTER(execle);
-	ASSIGN_FUNCTION_POINTER(execl);
-	ASSIGN_FUNCTION_POINTER(execvp);
-	ASSIGN_FUNCTION_POINTER(execlp);
-	ASSIGN_FUNCTION_POINTER(execvpe);
-	
-	ASSIGN_FUNCTION_POINTER(posix_spawn);
-	ASSIGN_FUNCTION_POINTER(posix_spawnp);
-}
-
 int open(const char* file, int oflag, ...)
 {
+	RESOLVE_FUNCTION_POINTER(open);
 	int errno_orig = errno;
 	mode_t mode = 0;
 	if (oflag & (O_CREAT | __O_TMPFILE))
@@ -91,6 +64,7 @@ int open(const char* file, int oflag, ...)
 
 int open64(const char* file, int oflag, ...)
 {
+	RESOLVE_FUNCTION_POINTER(open64);
 	int errno_orig = errno;
 	mode_t mode = 0;
 	if (oflag & (O_CREAT | __O_TMPFILE))
@@ -107,6 +81,7 @@ int open64(const char* file, int oflag, ...)
 
 int openat(int fd, const char* file, int oflag, ...)
 {
+	RESOLVE_FUNCTION_POINTER(openat);
 	int errno_orig = errno;
 	mode_t mode = 0;
 	if (oflag & (O_CREAT | __O_TMPFILE))
@@ -123,6 +98,7 @@ int openat(int fd, const char* file, int oflag, ...)
 
 int openat64(int fd, const char* file, int oflag, ...)
 {
+	RESOLVE_FUNCTION_POINTER(openat64);
 	int errno_orig = errno;
 	mode_t mode = 0;
 	if (oflag & (O_CREAT | __O_TMPFILE))
@@ -139,7 +115,7 @@ int openat64(int fd, const char* file, int oflag, ...)
 
 FILE* fopen(const char* path, const char* mode)
 {
-	ENSURE_FUNCTION_POINTER(fopen);
+	RESOLVE_FUNCTION_POINTER(fopen);
 	int errno_orig = errno;
 	record_path(path);
 	errno = errno_orig;
@@ -148,7 +124,7 @@ FILE* fopen(const char* path, const char* mode)
 
 FILE* fopen64(const char* path, const char* mode)
 {
-	ENSURE_FUNCTION_POINTER(fopen64);
+	RESOLVE_FUNCTION_POINTER(fopen64);
 	int errno_orig = errno;
 	record_path(path);
 	errno = errno_orig;
@@ -157,7 +133,7 @@ FILE* fopen64(const char* path, const char* mode)
 
 FILE* freopen(const char* path, const char* mode, FILE* stream)
 {
-	ENSURE_FUNCTION_POINTER(freopen);
+	RESOLVE_FUNCTION_POINTER(freopen);
 	int errno_orig = errno;
 	record_path(path);
 	errno = errno_orig;
@@ -166,7 +142,7 @@ FILE* freopen(const char* path, const char* mode, FILE* stream)
 
 FILE* freopen64(const char* path, const char* mode, FILE* stream)
 {
-	ENSURE_FUNCTION_POINTER(freopen64);
+	RESOLVE_FUNCTION_POINTER(freopen64);
 	int errno_orig = errno;
 	record_path(path);
 	errno = errno_orig;
@@ -175,7 +151,7 @@ FILE* freopen64(const char* path, const char* mode, FILE* stream)
 
 DIR* opendir(const char* name)
 {
-	ENSURE_FUNCTION_POINTER(opendir);
+	RESOLVE_FUNCTION_POINTER(opendir);
 	int errno_orig = errno;
 	record_path(name);
 	errno = errno_orig;
@@ -184,7 +160,7 @@ DIR* opendir(const char* name)
 
 DIR* fdopendir(int fd)
 {
-	ENSURE_FUNCTION_POINTER(fdopendir);
+	RESOLVE_FUNCTION_POINTER(fdopendir);
 	int errno_orig = errno;
 	record_fd(fd);
 	errno = errno_orig;
@@ -193,6 +169,7 @@ DIR* fdopendir(int fd)
 
 int execve(const char* path, char* const argv[], char* const envp[])
 {
+	RESOLVE_FUNCTION_POINTER(execve);
 	int errno_orig = errno;
 	record_path(path);
 	errno = errno_orig;
@@ -201,6 +178,7 @@ int execve(const char* path, char* const argv[], char* const envp[])
 
 int fexecve(int fd, char* const argv[], char* const envp[])
 {
+	RESOLVE_FUNCTION_POINTER(fexecve);
 	int errno_orig = errno;
 	record_fd(fd);
 	errno = errno_orig;
@@ -209,6 +187,7 @@ int fexecve(int fd, char* const argv[], char* const envp[])
 
 int execv(const char* path, char* const argv[])
 {
+	RESOLVE_FUNCTION_POINTER(execv);
 	int errno_orig = errno;
 	record_path(path);
 	errno = errno_orig;
@@ -217,6 +196,7 @@ int execv(const char* path, char* const argv[])
 
 int execle(const char* path, const char* arg, ...)
 {
+	RESOLVE_FUNCTION_POINTER(execve);
 	int errno_orig = errno;
 	const size_t limit = sizeof(static_argv) / sizeof(static_argv[0]);
 	va_list args;
@@ -241,6 +221,7 @@ int execle(const char* path, const char* arg, ...)
 
 int execl(const char* path, const char* arg, ...)
 {
+	RESOLVE_FUNCTION_POINTER(execv);
 	int errno_orig = errno;
 	const size_t limit = sizeof(static_argv) / sizeof(static_argv[0]);
 	va_list args;
@@ -264,6 +245,7 @@ int execl(const char* path, const char* arg, ...)
 
 int execvp(const char* file, char* const argv[])
 {
+	RESOLVE_FUNCTION_POINTER(execvp);
 	int errno_orig = errno;
 	record_path_search(file);
 	errno = errno_orig;
@@ -272,6 +254,7 @@ int execvp(const char* file, char* const argv[])
 
 int execlp(const char* file, const char* arg, ...)
 {
+	RESOLVE_FUNCTION_POINTER(execvp);
 	int errno_orig = errno;
 	const size_t limit = sizeof(static_argv) / sizeof(static_argv[0]);
 	va_list args;
@@ -295,6 +278,7 @@ int execlp(const char* file, const char* arg, ...)
 
 int execvpe(const char* file, char* const argv[], char* const envp[])
 {
+	RESOLVE_FUNCTION_POINTER(execvpe);
 	int errno_orig = errno;
 	record_path_search(file);
 	errno = errno_orig;
@@ -306,6 +290,7 @@ int posix_spawn(pid_t* pid, const char* path,
 	const posix_spawnattr_t* attrp,
 	char* const argv[], char* const envp[])
 {
+	RESOLVE_FUNCTION_POINTER(posix_spawn);
 	int errno_orig = errno;
 	record_path(path);
 	errno = errno_orig;
@@ -317,6 +302,7 @@ int posix_spawnp(pid_t* pid, const char* file,
 	const posix_spawnattr_t* attrp,
 	char* const argv[], char* const envp[])
 {
+	RESOLVE_FUNCTION_POINTER(posix_spawnp);
 	int errno_orig = errno;
 	record_path_search(file);
 	errno = errno_orig;

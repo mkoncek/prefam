@@ -174,6 +174,13 @@ static _Bool buffer_store_cwd(void)
 //! clear the buffer.
 static void buffer_record_output(void)
 {
+	// Program initialization is not fully finished.
+	if (static_output_fd == 0)
+	{
+		static_buffer_end = 0;
+		return;
+	}
+	
 	static_buffer_end = buffer_derelativize(static_buffer, static_buffer_end);
 	
 	int written = 0;
