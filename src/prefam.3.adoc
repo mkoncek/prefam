@@ -31,7 +31,7 @@ In case of a fatal error the library exits the whole program with *127*.
 == ENVIRONMENT VARIABLES
 *PREFAM_OUTPUT_FD*:: The numeric file descriptor into which the library writes the accessed paths.
 
-== EXAMPLE
+== EXAMPLES
 .Example usage from shell
 [subs="+quotes"]
 ----
@@ -48,3 +48,7 @@ Bugs should be reported through the issue tracker at Github: https://github.com/
 
 == AUTHOR
 Written by Marián Konček.
+
+== COPYRIGHT
+Copyright (C) 2026 Red Hat, Inc.
+Licensed under the Apache License, Version 2.0.

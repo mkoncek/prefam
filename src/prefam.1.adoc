@@ -26,7 +26,7 @@ If not provided, a file descriptor is allocated automatically.
 == EXIT STATUS
 *prefam* exits with the exit status of the executed _command_.
 
-== EXAMPLE
+== EXAMPLES
 [subs="+quotes"]
 ----
 $ *prefam* output.log make compile
@@ -41,3 +41,7 @@ Bugs should be reported through the issue tracker at Github: https://github.com/
 
 == AUTHOR
 Written by Marián Konček.
+
+== COPYRIGHT
+Copyright (C) 2026 Red Hat, Inc.
+Licensed under the Apache License, Version 2.0.
