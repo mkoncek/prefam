@@ -47,7 +47,7 @@ static void log_warning(const char* fmt, ...)
 	static_suspended = 1;
 	va_list args;
 	va_start(args, fmt);
-	fputs("[WARNING] prefam: ", stderr);
+	fputs("[WARNING] libprefam.so.1: ", stderr);
 	vfprintf(stderr, fmt, args);
 	fputs("\n", stderr);
 	va_end(args);
@@ -60,7 +60,7 @@ static void exit_with_error(const char* fmt, ...)
 	static_suspended = 1;
 	va_list args;
 	va_start(args, fmt);
-	fputs("[ERROR] prefam: ", stderr);
+	fputs("[ERROR] libprefam.so.1: ", stderr);
 	vfprintf(stderr, fmt, args);
 	fputs("\n", stderr);
 	va_end(args);
