@@ -15,7 +15,7 @@ The accessed file paths written to the output are separated by newlines.
 
 Warning and error messages are printed on the standard error output.
 
-.Example usage from shell
+=== Example usage from shell
 [source,bash]
 ----
 exec {fd}>output.log
