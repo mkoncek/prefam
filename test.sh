@@ -72,7 +72,7 @@ check_result '/file_fopen$'
 check_result '/file_fopen64$'
 check_result '/file_freopen$'
 check_result '/file_freopen64$'
-check_result "${testdir}"'$'
+check_result "${testdir}$"
 
 ################################################################################
 
@@ -88,24 +88,24 @@ check_result '/__prefam_test_posix_spawn__$'
 
 ################################################################################
 
-echo "content" > "${testdir}/textfile"
-test_command cat "${testdir}/textfile" > /dev/null
-check_result '.*'"${testdir}"'/textfile$'
+echo "content" >"${testdir}/textfile"
+test_command cat "${testdir}/textfile" >/dev/null
+check_result ".*/${testdir}/textfile$"
 
 test_command touch "${testdir}/file"
-check_result '.*'"${testdir}"'/file$'
+check_result ".*/${testdir}/file$"
 
 test_command touch "${testdir}/file"
-check_result '.*'"${testdir}"'/file$'
+check_result ".*/${testdir}/file$"
 
 echo '#!/bin/bash
 true' > "${testdir}/executable.sh"
 chmod a+x "${testdir}/executable.sh"
 test_command "./${testdir}/executable.sh"
-check_result '.*'"${testdir}"'/executable.sh$'
+check_result ".*/${testdir}/executable.sh$"
 
 test_command touch "$(pwd)/${testdir}/file"
-check_result '.*'"${testdir}"'/file$'
+check_result ".*/${testdir}/file$"
 
 ################################################################################
 # Test record_path_search: failed exec of a nonexistent command.
@@ -119,12 +119,12 @@ test_command env __prefam_nonexistent__ 2>/dev/null || true
 # for the missing interpreter), so the process exits normally and coverage data
 # for the "match found" code path and the relative-PATH branch is preserved.
 mkdir -p "${testdir}/bin"
-printf '#!/nonexistent_interp\n' > "${testdir}/bin/bad_shebang"
+printf '#!/nonexistent_interp\n' >"${testdir}/bin/bad_shebang"
 chmod +x "${testdir}/bin/bad_shebang"
 exec {fd}>"${testdir}/metafile"
 PATH="${testdir}/bin:/usr/bin" PREFAM_OUTPUT_FD="${fd}" LD_PRELOAD="${TARGET_LIB}" env bad_shebang 2>/dev/null || true
 exec {fd}>&-
-check_result '.*bad_shebang$'
+check_result ".*/${testdir}/bin/bad_shebang$"
 
 ################################################################################
 # Test record_path_search: path containing '/' delegates to record_path.
@@ -133,30 +133,30 @@ test_command env ./__prefam_no_such_script__ 2>/dev/null || true
 
 ################################################################################
 # Test path containing .. (exercises buffer_derelativize in the library)
-test_command cat "${testdir}/../testdir/textfile" > /dev/null
-check_result '.*testdir/textfile$'
+test_command cat "${testdir}/../testdir/textfile" >/dev/null
+check_result ".*/${testdir}/textfile$"
 
 ################################################################################
 # Test find -exec which uses openat with directory file descriptors
 mkdir -p "${testdir}/finddir"
 echo "data" > "${testdir}/finddir/findable"
-test_command find "${testdir}/finddir" -name "findable" -exec cat {} \; > /dev/null
-check_result '.*findable$'
+test_command find "${testdir}/finddir" -name "findable" -exec cat {} \; >/dev/null
+check_result ".*/${testdir}/finddir/findable$"
 
 ################################################################################
 # Test symbolic link path recording
 ln -s textfile "${testdir}/symlink"
-test_command cat "${testdir}/symlink" > /dev/null
-check_result '.*symlink$'
+test_command cat "${testdir}/symlink" >/dev/null
+check_result ".*/${testdir}/symlink$"
 
 ################################################################################
 # Test nonexistent file (path is recorded before the open attempt)
 test_command cat "${testdir}/no_such_file" 2>/dev/null || true
-check_result '.*no_such_file$'
+check_result ".*/${testdir}/no_such_file$"
 
 ################################################################################
 # Test xargs executing a command (exercises execvp in xargs context)
-echo "${testdir}/textfile" | test_command xargs cat > /dev/null
-check_result '.*textfile$'
+echo "${testdir}/textfile" | test_command xargs cat >/dev/null
+check_result ".*/${testdir}/textfile$"
 
 echo 'Tests PASSED'
