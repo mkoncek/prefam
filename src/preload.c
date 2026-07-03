@@ -19,6 +19,7 @@ static _Thread_local char* static_argv[128];
 
 #define DECLARE_FUNCTION_POINTER(name) static __typeof__(name)* name##_orig = NULL
 #define ASSIGN_FUNCTION_POINTER(name) name##_orig = (__typeof__(name##_orig))dlsym(RTLD_NEXT, #name)
+#define ENSURE_FUNCTION_POINTER(name) do { if (name##_orig == NULL) ASSIGN_FUNCTION_POINTER(name); } while (0)
 
 DECLARE_FUNCTION_POINTER(open);
 DECLARE_FUNCTION_POINTER(open64);
@@ -138,6 +139,7 @@ int openat64(int fd, const char* file, int oflag, ...)
 
 FILE* fopen(const char* path, const char* mode)
 {
+	ENSURE_FUNCTION_POINTER(fopen);
 	int errno_orig = errno;
 	record_path(path);
 	errno = errno_orig;
@@ -146,6 +148,7 @@ FILE* fopen(const char* path, const char* mode)
 
 FILE* fopen64(const char* path, const char* mode)
 {
+	ENSURE_FUNCTION_POINTER(fopen64);
 	int errno_orig = errno;
 	record_path(path);
 	errno = errno_orig;
@@ -154,6 +157,7 @@ FILE* fopen64(const char* path, const char* mode)
 
 FILE* freopen(const char* path, const char* mode, FILE* stream)
 {
+	ENSURE_FUNCTION_POINTER(freopen);
 	int errno_orig = errno;
 	record_path(path);
 	errno = errno_orig;
@@ -162,6 +166,7 @@ FILE* freopen(const char* path, const char* mode, FILE* stream)
 
 FILE* freopen64(const char* path, const char* mode, FILE* stream)
 {
+	ENSURE_FUNCTION_POINTER(freopen64);
 	int errno_orig = errno;
 	record_path(path);
 	errno = errno_orig;
@@ -170,6 +175,7 @@ FILE* freopen64(const char* path, const char* mode, FILE* stream)
 
 DIR* opendir(const char* name)
 {
+	ENSURE_FUNCTION_POINTER(opendir);
 	int errno_orig = errno;
 	record_path(name);
 	errno = errno_orig;
@@ -178,6 +184,7 @@ DIR* opendir(const char* name)
 
 DIR* fdopendir(int fd)
 {
+	ENSURE_FUNCTION_POINTER(fdopendir);
 	int errno_orig = errno;
 	record_fd(fd);
 	errno = errno_orig;

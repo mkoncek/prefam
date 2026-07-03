@@ -1,6 +1,8 @@
 #define _GNU_SOURCE
 
 #include <stdio.h>
+#include <string.h>
+#include <dirent.h>
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -14,6 +16,8 @@ int main(int argc, const char** argv)
 	}
 	const char* testdir = argv[1];
 	int fd;
+	FILE* fp;
+	DIR* dp;
 	
 	int dirfd = open(testdir, O_RDONLY | O_DIRECTORY);
 	printf("ok: open\n");
@@ -57,6 +61,39 @@ int main(int argc, const char** argv)
 	fd = openat64(AT_FDCWD, "/dev/urandom", O_RDONLY);
 	printf("ok: openat64 AT_FDCWD\n");
 	close(fd);
+	
+	char path[4096];
+	
+	snprintf(path, sizeof(path), "%s/file_fopen", testdir);
+	fp = fopen(path, "r");
+	printf("ok: fopen\n");
+	fclose(fp);
+	
+	snprintf(path, sizeof(path), "%s/file_fopen64", testdir);
+	fp = fopen64(path, "r");
+	printf("ok: fopen64\n");
+	fclose(fp);
+	
+	snprintf(path, sizeof(path), "%s/file_freopen", testdir);
+	fp = fopen("/dev/null", "r");
+	fp = freopen(path, "r", fp);
+	printf("ok: freopen\n");
+	fclose(fp);
+	
+	snprintf(path, sizeof(path), "%s/file_freopen64", testdir);
+	fp = fopen("/dev/null", "r");
+	fp = freopen64(path, "r", fp);
+	printf("ok: freopen64\n");
+	fclose(fp);
+	
+	dp = opendir(testdir);
+	printf("ok: opendir\n");
+	closedir(dp);
+	
+	dirfd = open(testdir, O_RDONLY | O_DIRECTORY);
+	dp = fdopendir(dirfd);
+	printf("ok: fdopendir\n");
+	closedir(dp);
 	
 	return 0;
 }

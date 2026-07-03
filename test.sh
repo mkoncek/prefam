@@ -10,9 +10,9 @@ mkdir "${testdir}"
 
 function test_command
 {
-	exec 3>"${testdir}/metafile"
-	PREFAM_OUTPUT_FD=3 LD_PRELOAD="${TARGET_LIB}" "$@"
-	exec 3>&-
+	exec {fd}>"${testdir}/metafile"
+	PREFAM_OUTPUT_FD="${fd}" LD_PRELOAD="${TARGET_LIB}" "$@"
+	exec {fd}>&-
 }
 
 function check_result
@@ -57,9 +57,10 @@ echo "Test derelativize"
 
 echo "Test open"
 touch "${testdir}/file_openat" "${testdir}/file_openat_bigfd" "${testdir}/file_openat64"
-exec 3>"${testdir}/metafile"
-PREFAM_OUTPUT_FD=3 "${TARGET_TEST_BIN_DIR}/test_open" "${testdir}" 2>/dev/null
-exec 3>&-
+touch "${testdir}/file_fopen" "${testdir}/file_fopen64" "${testdir}/file_freopen" "${testdir}/file_freopen64"
+exec {fd}>"${testdir}/metafile"
+PREFAM_OUTPUT_FD="${fd}" "${TARGET_TEST_BIN_DIR}/test_open" "${testdir}" 2>/dev/null
+exec {fd}>&-
 check_result '/file_openat$'
 check_result '/file_openat_bigfd$'
 check_result '/file_openat64$'
@@ -67,13 +68,18 @@ check_result '/dev/null$'
 check_result '/dev/zero$'
 check_result '/dev/random$'
 check_result '/dev/urandom$'
+check_result '/file_fopen$'
+check_result '/file_fopen64$'
+check_result '/file_freopen$'
+check_result '/file_freopen64$'
+check_result "${testdir}"'$'
 
 ################################################################################
 
 echo "Test exec"
-exec 3>"${testdir}/metafile"
-PREFAM_OUTPUT_FD=3 "${TARGET_TEST_BIN_DIR}/test_exec" 2>/dev/null
-exec 3>&-
+exec {fd}>"${testdir}/metafile"
+PREFAM_OUTPUT_FD="${fd}" "${TARGET_TEST_BIN_DIR}/test_exec" 2>/dev/null
+exec {fd}>&-
 check_result '/__prefam_test_execve__$'
 check_result '/__prefam_test_execv__$'
 check_result '/__prefam_test_execle__$'
@@ -115,9 +121,9 @@ test_command env __prefam_nonexistent__ 2>/dev/null || true
 mkdir -p "${testdir}/bin"
 printf '#!/nonexistent_interp\n' > "${testdir}/bin/bad_shebang"
 chmod +x "${testdir}/bin/bad_shebang"
-exec 3>"${testdir}/metafile"
-PATH="${testdir}/bin:/usr/bin" PREFAM_OUTPUT_FD=3 LD_PRELOAD="${TARGET_LIB}" env bad_shebang 2>/dev/null || true
-exec 3>&-
+exec {fd}>"${testdir}/metafile"
+PATH="${testdir}/bin:/usr/bin" PREFAM_OUTPUT_FD="${fd}" LD_PRELOAD="${TARGET_LIB}" env bad_shebang 2>/dev/null || true
+exec {fd}>&-
 check_result '.*bad_shebang$'
 
 ################################################################################
