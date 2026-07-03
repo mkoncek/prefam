@@ -142,7 +142,9 @@ static int link_buffer_store_fd(int fd)
 static _Bool buffer_readlink(int fd)
 {
 	link_buffer_store_fd(fd);
+	static_suspended = 1;
 	ssize_t length = readlink(static_link_buffer, static_buffer, sizeof(static_buffer));
+	static_suspended = 0;
 	if (length == -1)
 	{
 		log_warning("readlink on %d returned error: %s", fd, strerror(errno));

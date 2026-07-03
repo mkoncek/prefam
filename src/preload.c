@@ -30,8 +30,12 @@ DECLARE_FUNCTION_POINTER(fopen);
 DECLARE_FUNCTION_POINTER(fopen64);
 DECLARE_FUNCTION_POINTER(freopen);
 DECLARE_FUNCTION_POINTER(freopen64);
+
 DECLARE_FUNCTION_POINTER(opendir);
 DECLARE_FUNCTION_POINTER(fdopendir);
+
+DECLARE_FUNCTION_POINTER(readlink);
+DECLARE_FUNCTION_POINTER(readlinkat);
 
 DECLARE_FUNCTION_POINTER(execve);
 DECLARE_FUNCTION_POINTER(fexecve);
@@ -149,13 +153,13 @@ FILE* freopen64(const char* path, const char* mode, FILE* stream)
 	return freopen64_orig(path, mode, stream);
 }
 
-DIR* opendir(const char* name)
+DIR* opendir(const char* path)
 {
 	RESOLVE_FUNCTION_POINTER(opendir);
 	int errno_orig = errno;
-	record_path(name);
+	record_path(path);
 	errno = errno_orig;
-	return opendir_orig(name);
+	return opendir_orig(path);
 }
 
 DIR* fdopendir(int fd)
@@ -165,6 +169,24 @@ DIR* fdopendir(int fd)
 	record_fd(fd);
 	errno = errno_orig;
 	return fdopendir_orig(fd);
+}
+
+ssize_t readlink(const char* restrict path, char* restrict buf, size_t bufsize)
+{
+	RESOLVE_FUNCTION_POINTER(readlink);
+	int errno_orig = errno;
+	record_path(path);
+	errno = errno_orig;
+	return readlink_orig(path, buf, bufsize);
+}
+
+ssize_t readlinkat(int dirfd, const char* restrict path, char* restrict buf, size_t bufsize)
+{
+	RESOLVE_FUNCTION_POINTER(readlinkat);
+	int errno_orig = errno;
+	record_openat_path(dirfd, path);
+	errno = errno_orig;
+	return readlinkat_orig(dirfd, path, buf, bufsize);
 }
 
 int execve(const char* path, char* const argv[], char* const envp[])

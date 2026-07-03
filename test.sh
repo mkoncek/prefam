@@ -150,6 +150,11 @@ test_command cat "${testdir}/symlink" >/dev/null
 check_result ".*/${testdir}/symlink$"
 
 ################################################################################
+# Test readlink
+test_command readlink "${testdir}/symlink" >/dev/null
+check_result ".*/${testdir}/symlink$"
+
+################################################################################
 # Test nonexistent file (path is recorded before the open attempt)
 test_command cat "${testdir}/no_such_file" 2>/dev/null || true
 check_result ".*/${testdir}/no_such_file$"

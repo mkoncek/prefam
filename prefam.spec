@@ -15,8 +15,9 @@ BuildRequires:  make
 BuildRequires:  asciidoctor
 
 %description
-Prefam is a library that overrides system calls open*, exec*, posix_spawn* and
-records which file paths have been accessed by these system calls.
+Prefam is a library that interposes C library functions of families open, fopen,
+opendir, readlink, exec, posix_spawn and records which file paths have been
+accessed by these functions.
 
 It works by preloading a shared library via LD_PRELOAD, which means it only
 intercepts dynamically linked C library calls and not raw system calls made via
