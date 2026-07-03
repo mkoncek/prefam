@@ -2,7 +2,7 @@
 :License: Apache-2.0
 :source-highlighter: rouge
 
-_Prefam_ is a small and fast library that interposes C library functions `open*`, `fopen*`, `exec*`, `posix_spawn*` and records which file paths have been accessed by these functions.
+_Prefam_ is a small and fast library that interposes C library functions of families `open`, `fopen`, `opendir`, `exec` and `posix_spawn` and records which file paths have been accessed by these functions.
 
 It works by preloading a shared library via `LD_PRELOAD`, which means it only intercepts dynamically linked C library calls and not raw system calls made via `syscall` or inline assembly.
 While it is not as robust as using `fanotify` or other kernel-level instrumentation such as _eBPF_ it can be easily hooked onto programs from user space.
@@ -15,7 +15,7 @@ The accessed file paths written to the output are separated by newlines.
 
 Warning and error messages are printed on the standard error output.
 
-.Example usage from shell:
+.Example usage from shell
 [source,bash]
 ----
 exec {fd}>output.log

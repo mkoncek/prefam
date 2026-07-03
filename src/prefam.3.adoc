@@ -11,7 +11,7 @@ prefam - preloaded file access monitor
 *PREFAM_OUTPUT_FD*=_fd_ *LD_PRELOAD*=libprefam.so.1 *command* [args...]
 
 == DESCRIPTION
-_Prefam_ is a library that overrides system calls *+open*+*, *+fopen*+*, *+exec*+* and *+posix_spawn*+* and records which file paths have been accessed by these system calls.
+_Prefam_ is a library that interposes C library functions of families *open*, *fopen*, *opendir*, *exec* and *posix_spawn* and records which file paths have been accessed by these system calls.
 
 The library writes accessed file paths into the provided file descriptor as soon as the events happen.
 The accessed file paths written to the output are separated by newlines.
@@ -19,13 +19,11 @@ The accessed file paths written to the output are separated by newlines.
 Warning and error messages are printed on the standard error output.
 
 === Preloaded functions
-open, open64, openat, openat64
-
-fopen, fopen64, freopen, freopen64, opendir, fdopendir
-
-execve, fexecve, execv, execle, execl, execvp, execlp, execvpe
-
-posix_spawn, posix_spawnp
+_open_ - *open*, *open64*, *openat*, *openat64* +
+_fopen_ - *fopen*, *fopen64*, *freopen*, *freopen64* +
+_opendir_ - *opendir*, *fdopendir* +
+_exec_ - *execve*, *fexecve*, *execv*, *execle*, *execl*, *execvp*, *execlp*, *execvpe* +
+_posix_spawn_ - *posix_spawn*, *posix_spawnp* +
 
 == EXIT STATUS
 In case of a fatal error the library exits the whole program with *127*.
@@ -34,7 +32,7 @@ In case of a fatal error the library exits the whole program with *127*.
 *PREFAM_OUTPUT_FD*:: The numeric file descriptor into which the library writes the accessed paths.
 
 == EXAMPLE
-.Example usage from shell:
+.Example usage from shell
 [subs="+quotes"]
 ----
 exec {fd}>output.log
