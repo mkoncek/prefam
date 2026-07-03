@@ -1,3 +1,5 @@
+#pragma once
+
 //! Record file access of @p path file path.
 //! @param path The file path that was accessed.
 __attribute__((visibility("hidden"))) void record_path(const char* path);
