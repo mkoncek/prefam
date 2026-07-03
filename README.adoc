@@ -19,9 +19,7 @@ Warning and error messages are printed on the standard error output.
 [source,bash]
 ----
 exec 3>output.log
-
-PREFAM_OUTPUT_FD=3 LD_PRELOAD=${libdir}/libprefam.so.1 command [args...]
-
+PREFAM_OUTPUT_FD=3 LD_PRELOAD=libprefam.so.1 command [args...]
 exec 3>&-
 ----
 

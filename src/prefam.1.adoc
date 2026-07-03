@@ -26,12 +26,10 @@ In case of a fatal error the library exits the whole program with *127*.
 
 == EXAMPLE
 .Example usage from shell:
-[source,bash]
+[subs="+quotes"]
 ----
 exec 3>output.log
-
-PREFAM_OUTPUT_FD=3 LD_PRELOAD=${libdir}/libprefam.so.1 command [args...]
-
+*PREFAM_OUTPUT_FD*=3 *LD_PRELOAD*=libprefam.so.1 *command* _[args...]_
 exec 3>&-
 ----
 
