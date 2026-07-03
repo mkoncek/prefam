@@ -21,10 +21,10 @@ target/object_files/%.c.o: src/%.c Makefile | target/object_files/ target/depend
 	$(CC) $(CPPFLAGS) $(CFLAGS) -fpic -MMD -MP -MF target/dependencies/$*.c.mk -c -o $@ $<
 
 target/lib/libprefam.so.$(soversion): target/object_files/preload.c.o target/object_files/record.c.o target/object_files/util.c.o Makefile | target/lib/
-	$(CC) $(CFLAGS) $(LDFLAGS) $(LDLIBS) -shared -Wl,-soname,$(@F) -o $@ $(filter %.o,$^)
+	$(CC) $(CFLAGS) -o $@ $(filter %.o,$^) -shared -Wl,-soname,$(@F) $(LDFLAGS) $(LDLIBS)
 
 target/test/%: target/object_files/%.c.o Makefile | target/test/
-	$(CC) $(CFLAGS) $(LDFLAGS) $(LDLIBS) -o $@ $(filter %.o,$^)
+	$(CC) $(CFLAGS) -o $@ $(filter %.o,$^) $(LDFLAGS) $(LDLIBS)
 
 target/test/test_derelativize: target/object_files/util.c.o
 target/test/test_open: target/object_files/preload.c.o target/object_files/record.c.o target/object_files/util.c.o
