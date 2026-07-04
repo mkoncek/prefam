@@ -47,8 +47,8 @@ Coverage report is generated using tools `genhtml` and `lcov`.
 $ make coverage
 ----
 
-=== Manual page
-Manual page is generated using `asciidoctor`.
+=== Manual pages
+Manual pages are generated using `asciidoctor`.
 ----
 $ make manpage
 ----
