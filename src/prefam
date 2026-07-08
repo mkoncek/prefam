@@ -35,4 +35,4 @@ else
 	exec {fd}>"${file}"
 fi
 
-PREFAM_OUTPUT_FD="${fd}" LD_PRELOAD="libprefam.so.1" "$@"
+PREFAM_OUTPUT_FD="${fd}" LD_PRELOAD="libprefam.so.1" exec "$@"
