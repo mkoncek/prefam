@@ -4,16 +4,15 @@
 
 #include <stdarg.h>
 #include <stddef.h>
-#include <stdlib.h>
-#include <errno.h>
-
 #include <stdio.h>
-#include <dirent.h>
+#include <stdlib.h>
 
+#include <dirent.h>
 #include <dlfcn.h>
+#include <errno.h>
 #include <fcntl.h>
-#include <unistd.h>
 #include <spawn.h>
+#include <unistd.h>
 
 static _Thread_local char* static_argv[128];
 
