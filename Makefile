@@ -47,7 +47,7 @@ test: test-compile
 coverage: CFLAGS += --coverage -fno-default-inline
 coverage: LDFLAGS += --coverage
 coverage: test | target/coverage/
-	@lcov --output-file target/coverage/coverage.info --directory target --capture --exclude '/usr/include/*'
-	@genhtml -o target/coverage target/coverage/coverage.info
+	lcov --output-file target/coverage/coverage.info --directory target --capture --exclude '/usr/include/*'
+	genhtml -o target/coverage target/coverage/coverage.info
 
 -include target/dependencies/*.mk
