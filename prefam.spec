@@ -1,8 +1,8 @@
-%global git_ref 96c3d68a26dd860c55eab4cff67eee8291b767cf
+%global git_ref 3d5adb3c367049743dbad8c2cf251318171664f3
 %global git_short_ref %(echo %{git_ref} | cut -b -7)
 
 Name:           prefam
-Version:        0^202607032220.%{git_short_ref}
+Version:        0^202607091026.%{git_short_ref}
 Release:        %autorelease
 Summary:        Preloaded file access monitor
 License:        Apache-2.0
