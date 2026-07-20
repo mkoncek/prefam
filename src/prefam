@@ -2,7 +2,7 @@
 
 set -e
 
-usage()
+function usage
 {
 	echo "\
 Usage: ${0##*/} [-a] [-d file_descriptor] <file> <command> [args...]
