@@ -2,8 +2,8 @@
 
 #include "record.h"
 
-#include <stdatomic.h>
 #include <stdarg.h>
+#include <stdatomic.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
