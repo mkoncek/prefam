@@ -190,8 +190,6 @@ int execv(const char* path, char* const argv[])
 
 int execle(const char* path, const char* arg, ...)
 {
-	RESOLVE_FUNCTION_POINTER(execve);
-	int errno_orig = errno;
 	const size_t limit = sizeof(static_argv) / sizeof(static_argv[0]);
 	va_list args;
 	va_start(args, arg);
@@ -203,9 +201,7 @@ int execle(const char* path, const char* arg, ...)
 		{
 			char* const* envp = va_arg(args, char* const*);
 			va_end(args);
-			record_path(path);
-			errno = errno_orig;
-			return execve_orig(path, static_argv, envp);
+			return execve(path, static_argv, envp);
 		}
 	}
 	va_end(args);
@@ -215,8 +211,6 @@ int execle(const char* path, const char* arg, ...)
 
 int execl(const char* path, const char* arg, ...)
 {
-	RESOLVE_FUNCTION_POINTER(execv);
-	int errno_orig = errno;
 	const size_t limit = sizeof(static_argv) / sizeof(static_argv[0]);
 	va_list args;
 	va_start(args, arg);
@@ -227,9 +221,7 @@ int execl(const char* path, const char* arg, ...)
 		if (static_argv[i] == NULL)
 		{
 			va_end(args);
-			record_path(path);
-			errno = errno_orig;
-			return execv_orig(path, static_argv);
+			return execv(path, static_argv);
 		}
 	}
 	va_end(args);
@@ -248,8 +240,6 @@ int execvp(const char* file, char* const argv[])
 
 int execlp(const char* file, const char* arg, ...)
 {
-	RESOLVE_FUNCTION_POINTER(execvp);
-	int errno_orig = errno;
 	const size_t limit = sizeof(static_argv) / sizeof(static_argv[0]);
 	va_list args;
 	va_start(args, arg);
@@ -260,9 +250,7 @@ int execlp(const char* file, const char* arg, ...)
 		if (static_argv[i] == NULL)
 		{
 			va_end(args);
-			record_path_search(file);
-			errno = errno_orig;
-			return execvp_orig(file, static_argv);
+			return execvp(file, static_argv);
 		}
 	}
 	va_end(args);
