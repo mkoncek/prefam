@@ -2,6 +2,7 @@
 
 #include "record.h"
 
+#include <stdatomic.h>
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -16,9 +17,9 @@
 
 static _Thread_local char* static_argv[128];
 
-#define DECLARE_FUNCTION_POINTER(name) static __typeof__(name)* name##_orig = NULL
-#define RESOLVE_FUNCTION_POINTER(name) { if (name##_orig == NULL) {\
-	name##_orig = (__typeof__(name##_orig))dlsym(RTLD_NEXT, #name); } }
+#define DECLARE_FUNCTION_POINTER(name) static __typeof__(name)* _Atomic name##_orig = NULL
+#define RESOLVE_FUNCTION_POINTER(name) { if (atomic_load_explicit(&name##_orig, memory_order_relaxed) == NULL) {\
+	atomic_store_explicit(&name##_orig, dlsym(RTLD_NEXT, #name), memory_order_relaxed); } }
 
 DECLARE_FUNCTION_POINTER(open);
 DECLARE_FUNCTION_POINTER(open64);
