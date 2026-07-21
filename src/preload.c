@@ -17,37 +17,9 @@
 
 static _Thread_local char* static_argv[128];
 
-#define DECLARE_FUNCTION_POINTER(name) static __typeof__(name)* _Atomic name##_orig = NULL
-#define RESOLVE_FUNCTION_POINTER(name) { if (atomic_load_explicit(&name##_orig, memory_order_relaxed) == NULL) {\
+#define RESOLVE_FUNCTION_POINTER(name) static __typeof__(name)* _Atomic name##_orig = NULL;\
+{ if (atomic_load_explicit(&name##_orig, memory_order_relaxed) == NULL) {\
 	atomic_store_explicit(&name##_orig, dlsym(RTLD_NEXT, #name), memory_order_relaxed); } }
-
-DECLARE_FUNCTION_POINTER(open);
-DECLARE_FUNCTION_POINTER(open64);
-DECLARE_FUNCTION_POINTER(openat);
-DECLARE_FUNCTION_POINTER(openat64);
-
-DECLARE_FUNCTION_POINTER(fopen);
-DECLARE_FUNCTION_POINTER(fopen64);
-DECLARE_FUNCTION_POINTER(freopen);
-DECLARE_FUNCTION_POINTER(freopen64);
-
-DECLARE_FUNCTION_POINTER(opendir);
-DECLARE_FUNCTION_POINTER(fdopendir);
-
-DECLARE_FUNCTION_POINTER(readlink);
-DECLARE_FUNCTION_POINTER(readlinkat);
-
-DECLARE_FUNCTION_POINTER(execve);
-DECLARE_FUNCTION_POINTER(fexecve);
-DECLARE_FUNCTION_POINTER(execv);
-// DECLARE_FUNCTION_POINTER(execle);
-// DECLARE_FUNCTION_POINTER(execl);
-DECLARE_FUNCTION_POINTER(execvp);
-// DECLARE_FUNCTION_POINTER(execlp);
-DECLARE_FUNCTION_POINTER(execvpe);
-
-DECLARE_FUNCTION_POINTER(posix_spawn);
-DECLARE_FUNCTION_POINTER(posix_spawnp);
 
 int open(const char* file, int oflag, ...)
 {
