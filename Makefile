@@ -49,5 +49,6 @@ coverage: LDFLAGS += --coverage
 coverage: test | target/coverage/
 	lcov --output-file target/coverage/coverage.info --directory target --capture --exclude '/usr/include/*'
 	genhtml -o target/coverage target/coverage/coverage.info
+	@echo "Coverage report is available at: file://$$(pwd)/target/coverage/index.html"
 
 -include target/dependencies/*.mk

@@ -17,9 +17,12 @@
 
 static _Thread_local char* static_argv[128];
 
-#define RESOLVE_FUNCTION_POINTER(name) static __typeof__(name)* _Atomic name##_orig = NULL;\
-{ if (atomic_load_explicit(&name##_orig, memory_order_relaxed) == NULL) {\
-	atomic_store_explicit(&name##_orig, dlsym(RTLD_NEXT, #name), memory_order_relaxed); } }
+#define RESOLVE_FUNCTION_POINTER(name)\
+	static __typeof__(name)* _Atomic name##_orig = NULL;\
+	if (atomic_load_explicit(&name##_orig, memory_order_relaxed) == NULL) {\
+		atomic_store_explicit(&name##_orig, dlsym(RTLD_NEXT, #name), memory_order_relaxed);\
+	}\
+;
 
 int open(const char* file, int oflag, ...)
 {
