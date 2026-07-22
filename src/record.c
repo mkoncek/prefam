@@ -4,6 +4,7 @@
 #include "util.h"
 
 #include <stdarg.h>
+#include <stdatomic.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,7 +18,7 @@
 
 #include <linux/limits.h>
 
-static int static_output_fd = 0;
+static _Atomic int static_output_fd = 0;
 
 static _Thread_local _Bool static_suspended = 0;
 static _Thread_local int static_buffer_end = 0;
@@ -76,11 +77,12 @@ static void constructor(void)
 	{
 		exit_with_error("PREFAM_OUTPUT_FD is not set");
 	}
-	static_output_fd = atoi(env_output_fd);
-	if (static_output_fd == 0)
+	const int output_fd = atoi(env_output_fd);
+	if (output_fd == 0)
 	{
 		exit_with_error("unable to read number from PREFAM_OUTPUT_FD: %s", env_output_fd);
 	}
+	atomic_store_explicit(&static_output_fd, output_fd, memory_order_relaxed);
 }
 
 //! Push multiple data chunks into the static buffer. If the buffer is too small,
@@ -176,8 +178,9 @@ static _Bool buffer_store_cwd(void)
 //! clear the buffer.
 static void buffer_record_output(void)
 {
+	const int output_fd = atomic_load_explicit(&static_output_fd, memory_order_relaxed);
 	// Program initialization is not fully finished.
-	if (static_output_fd == 0)
+	if (output_fd == 0)
 	{
 		static_buffer_end = 0;
 		return;
@@ -189,10 +192,10 @@ static void buffer_record_output(void)
 	
 	while (written != static_buffer_end)
 	{
-		int write_result = (int)write(static_output_fd, static_buffer + written, (size_t)(static_buffer_end - written));
+		int write_result = (int)write(output_fd, static_buffer + written, (size_t)(static_buffer_end - written));
 		if (write_result <= 0)
 		{
-			log_warning("write failed on fd %d: %s", static_output_fd, strerror(errno));
+			log_warning("write failed on fd %d: %s", output_fd, strerror(errno));
 			break;
 		}
 		
