@@ -6,8 +6,8 @@ function usage
 {
 	echo "\
 Usage: ${0##*/} [-a] [-d file_descriptor] <file> <command> [args...]
-    -a  Append to the file instead of creating it
-    -d  Explicit file descriptor number to use, if not provided, will be generated automatically" >&2
+    -a      Append to the file instead of creating it
+    -d FD   Explicit file descriptor number to use, if not provided, will be generated automatically" >&2
 	exit 1
 }
 

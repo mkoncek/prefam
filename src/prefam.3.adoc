@@ -19,12 +19,12 @@ The accessed file paths written to the output are separated by newlines.
 Warning and error messages are printed on the standard error output.
 
 === Preloaded functions
-_open_ - *open*, *open64*, *openat*, *openat64* +
-_fopen_ - *fopen*, *fopen64*, *freopen*, *freopen64* +
-_opendir_ - *opendir*, *fdopendir* +
-_readlink_ - *readlink*, *readlinkat* +
-_exec_ - *execve*, *fexecve*, *execv*, *execle*, *execl*, *execvp*, *execlp*, *execvpe* +
-_posix_spawn_ - *posix_spawn*, *posix_spawnp* +
+*open*, *open64*, *openat*, *openat64*; +
+*fopen*, *fopen64*, *freopen*, *freopen64*; +
+*opendir*, *fdopendir*; +
+*readlink*, *readlinkat*; +
+*execve*, *fexecve*, *execv*, *execle*, *execl*, *execvp*, *execlp*, *execvpe*; +
+*posix_spawn*, *posix_spawnp*; +
 
 == EXIT STATUS
 In case of a fatal error the library exits the whole program with *127*.

@@ -13,7 +13,7 @@ prefam - preloaded file access monitor
 == DESCRIPTION
 The *prefam* command runs _command_ with the *libprefam* library preloaded via *LD_PRELOAD* and records the file paths accessed by the command into _file_.
 
-See *prefam*(3) for details on the preloaded library.
+See the manual page of *prefam*(3) for details on the preloaded library.
 
 == OPTIONS
 *-a*::
