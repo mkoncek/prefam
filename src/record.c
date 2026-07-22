@@ -21,7 +21,7 @@ static int static_output_fd = 0;
 
 static _Thread_local _Bool static_suspended = 0;
 static _Thread_local int static_buffer_end = 0;
-static _Thread_local char static_buffer[PATH_MAX] = {};
+static _Thread_local char static_buffer[PATH_MAX];
 static _Thread_local char static_link_buffer[32] = "/proc/self/fd/";
 
 typedef struct
@@ -299,7 +299,8 @@ void record_path_search(const char* path)
 	}
 	if (strchr(path, '/') != NULL)
 	{
-		return record_path(path);
+		record_path(path);
+		return;
 	}
 	int path_length = (int)strlen(path);
 	const char* path_env = getenv("PATH");
@@ -336,7 +337,8 @@ void record_path_search(const char* path)
 				{
 					// Replace null-terminator with a new line.
 					static_buffer[static_buffer_end - 1] = '\n';
-					return buffer_record_output();
+					buffer_record_output();
+					return;
 				}
 				static_buffer_end = 0;
 			}
