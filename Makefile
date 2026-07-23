@@ -5,7 +5,7 @@ soversion := 1
 .PHONY: all compile test-compile test coverage manpages clean
 .PRECIOUS: target/object_files/%.c.o
 
-CFLAGS ?= -Wall -Wextra -Wconversion -Wno-varargs -Og -g -flto
+CFLAGS ?= -Wall -Wextra -Wconversion -Og -g -flto
 CFLAGS += -std=c99
 LDFLAGS ?= -flto
 
