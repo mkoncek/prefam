@@ -16,6 +16,8 @@
 #include <linux/limits.h>
 
 static _Atomic int static_output_fd = 0;
+static const char* _Atomic static_output_path = NULL;
+static _Atomic pid_t static_init_pid = 0;
 
 static _Thread_local _Bool static_suspended = 0;
 static _Thread_local int static_buffer_end = 0;
@@ -72,16 +74,17 @@ static void constructor(void)
 	const char* env_output_fd = getenv("PREFAM_OUTPUT_FD");
 	const char* env_output_path = getenv("PREFAM_OUTPUT_PATH");
 	int output_fd = -1;
-	if (env_output_fd == NULL && env_output_path == NULL)
+	if (env_output_fd != NULL && env_output_path != NULL)
 	{
 		exit_with_error("both PREFAM_OUTPUT_FD and PREFAM_OUTPUT_PATH are set");
 	}
-	else if (env_output_fd != NULL && env_output_path != NULL)
+	else if (env_output_fd == NULL && env_output_path == NULL)
 	{
-		exit_with_error("neither of PREFAM_OUTPUT_FD, PREFAM_OUTPUT_PATH are set");
+		exit_with_error("neither of PREFAM_OUTPUT_FD, PREFAM_OUTPUT_PATH is set");
 	}
 	else if (env_output_path != NULL)
 	{
+		atomic_store_explicit(&static_output_path, env_output_path, memory_order_relaxed);
 		output_fd = prefam_orig_open(env_output_path, O_WRONLY | O_APPEND | O_CREAT, 0666);
 		if (output_fd == -1)
 		{
@@ -98,6 +101,7 @@ static void constructor(void)
 	}
 	
 	atomic_store_explicit(&static_output_fd, output_fd, memory_order_relaxed);
+	atomic_store_explicit(&static_init_pid, getpid(), memory_order_relaxed);
 }
 
 //! Push multiple data chunks into the static buffer. If the buffer is too small,
@@ -193,12 +197,27 @@ static _Bool buffer_store_cwd(void)
 //! clear the buffer.
 static void buffer_record_output(void)
 {
-	const int output_fd = atomic_load_explicit(&static_output_fd, memory_order_relaxed);
+	int output_fd = atomic_load_explicit(&static_output_fd, memory_order_relaxed);
 	// Program initialization is not fully finished.
 	if (output_fd == 0)
 	{
 		static_buffer_end = 0;
 		return;
+	}
+	const char* output_path = atomic_load_explicit(&static_output_path, memory_order_relaxed);
+	
+	// After fork, the parent's fd may have been closed by close_fds.
+	// Reopen the output file if we're in a forked child.
+	if (output_path != NULL && getpid() != atomic_load_explicit(&static_init_pid, memory_order_relaxed))
+	{
+		output_fd = prefam_orig_open(output_path, O_WRONLY | O_APPEND | O_CREAT, 0666);
+		if (output_fd == -1)
+		{
+			static_buffer_end = 0;
+			return;
+		}
+		atomic_store_explicit(&static_output_fd, output_fd, memory_order_relaxed);
+		atomic_store_explicit(&static_init_pid, getpid(), memory_order_relaxed);
 	}
 	
 	static_buffer_end = buffer_derelativize(static_buffer, static_buffer_end);
