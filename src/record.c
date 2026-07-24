@@ -5,16 +5,13 @@
 
 #include <stdarg.h>
 #include <stdatomic.h>
-#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include <dlfcn.h>
 #include <errno.h>
-#include <fcntl.h>
 #include <spawn.h>
-#include <unistd.h>
 
 #include <linux/limits.h>
 
@@ -73,15 +70,33 @@ __attribute__((constructor))
 static void constructor(void)
 {
 	const char* env_output_fd = getenv("PREFAM_OUTPUT_FD");
-	if (env_output_fd == NULL)
+	const char* env_output_path = getenv("PREFAM_OUTPUT_PATH");
+	int output_fd = -1;
+	if (env_output_fd == NULL && env_output_path == NULL)
 	{
-		exit_with_error("PREFAM_OUTPUT_FD is not set");
+		exit_with_error("both PREFAM_OUTPUT_FD and PREFAM_OUTPUT_PATH are set");
 	}
-	const int output_fd = atoi(env_output_fd);
-	if (output_fd == 0)
+	else if (env_output_fd != NULL && env_output_path != NULL)
 	{
-		exit_with_error("unable to read number from PREFAM_OUTPUT_FD: %s", env_output_fd);
+		exit_with_error("neither of PREFAM_OUTPUT_FD, PREFAM_OUTPUT_PATH are set");
 	}
+	else if (env_output_path != NULL)
+	{
+		output_fd = prefam_orig_open(env_output_path, O_WRONLY | O_APPEND | O_CREAT, 0666);
+		if (output_fd == -1)
+		{
+			exit_with_error("%s", strerror(errno));
+		}
+	}
+	else
+	{
+		output_fd = atoi(env_output_fd);
+		if (output_fd == 0)
+		{
+			exit_with_error("unable to read number from PREFAM_OUTPUT_FD: %s", env_output_fd);
+		}
+	}
+	
 	atomic_store_explicit(&static_output_fd, output_fd, memory_order_relaxed);
 }
 
@@ -145,7 +160,7 @@ static _Bool buffer_readlink(int fd)
 {
 	link_buffer_store_fd(fd);
 	static_suspended = 1;
-	ssize_t length = readlink(static_link_buffer, static_buffer, sizeof(static_buffer));
+	ssize_t length = prefam_orig_readlink(static_link_buffer, static_buffer, sizeof(static_buffer));
 	static_suspended = 0;
 	if (length == -1)
 	{
@@ -205,7 +220,7 @@ static void buffer_record_output(void)
 	static_buffer_end = 0;
 }
 
-void record_path(const char* path)
+void prefam_record_path(const char* path)
 {
 	if (static_suspended)
 	{
@@ -235,7 +250,7 @@ void record_path(const char* path)
 	}
 }
 
-void record_fd(int fd)
+void prefam_record_fd(int fd)
 {
 	if (static_suspended)
 	{
@@ -248,7 +263,7 @@ void record_fd(int fd)
 	}
 }
 
-void record_openat_path(int fd, const char* path)
+void prefam_record_openat_path(int fd, const char* path)
 {
 	if (static_suspended)
 	{
@@ -290,7 +305,7 @@ void record_openat_path(int fd, const char* path)
 	}
 }
 
-void record_path_search(const char* path)
+void prefam_record_path_search(const char* path)
 {
 	if (static_suspended)
 	{
@@ -302,7 +317,7 @@ void record_path_search(const char* path)
 	}
 	if (strchr(path, '/') != NULL)
 	{
-		record_path(path);
+		prefam_record_path(path);
 		return;
 	}
 	int path_length = (int)strlen(path);

@@ -4,29 +4,39 @@
 
 #include <stdarg.h>
 #include <stdatomic.h>
-#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #include <dirent.h>
 #include <dlfcn.h>
 #include <errno.h>
-#include <fcntl.h>
 #include <spawn.h>
-#include <unistd.h>
 
 static _Thread_local char* static_argv[128];
 
 #define RESOLVE_FUNCTION_POINTER(name)\
-	static __typeof__(name)* _Atomic name##_orig = NULL;\
-	if (atomic_load_explicit(&name##_orig, memory_order_relaxed) == NULL) {\
-		atomic_store_explicit(&name##_orig, dlsym(RTLD_NEXT, #name), memory_order_relaxed);\
+	static __typeof__(name)* _Atomic name##_orig_static = NULL;\
+	__typeof__(name)* name##_orig = atomic_load_explicit(&name##_orig_static, memory_order_relaxed);\
+	if (name##_orig == NULL) {\
+		name##_orig = (__typeof__(name##_orig))dlsym(RTLD_NEXT, #name);\
+		atomic_store_explicit(&name##_orig_static, name##_orig, memory_order_relaxed);\
 	}\
 ;
 
-int open(const char* file, int oflag, ...)
+int prefam_orig_open(const char* file, int oflag, mode_t mode)
 {
 	RESOLVE_FUNCTION_POINTER(open);
+	return open_orig(file, oflag, mode);
+}
+
+ssize_t prefam_orig_readlink(const char* restrict path, char* restrict buf, size_t bufsize)
+{
+	RESOLVE_FUNCTION_POINTER(readlink);
+	return readlink_orig(path, buf, bufsize);
+}
+
+int open(const char* file, int oflag, ...)
+{
 	int errno_orig = errno;
 	mode_t mode = 0;
 	if (oflag & (O_CREAT | __O_TMPFILE))
@@ -36,9 +46,9 @@ int open(const char* file, int oflag, ...)
 		mode = va_arg(args, mode_t);
 		va_end(args);
 	}
-	record_path(file);
+	prefam_record_path(file);
 	errno = errno_orig;
-	return open_orig(file, oflag, mode);
+	return prefam_orig_open(file, oflag, mode);
 }
 
 int open64(const char* file, int oflag, ...)
@@ -53,7 +63,7 @@ int open64(const char* file, int oflag, ...)
 		mode = va_arg(args, mode_t);
 		va_end(args);
 	}
-	record_path(file);
+	prefam_record_path(file);
 	errno = errno_orig;
 	return open64_orig(file, oflag, mode);
 }
@@ -70,7 +80,7 @@ int openat(int fd, const char* file, int oflag, ...)
 		mode = va_arg(args, mode_t);
 		va_end(args);
 	}
-	record_openat_path(fd, file);
+	prefam_record_openat_path(fd, file);
 	errno = errno_orig;
 	return openat_orig(fd, file, oflag, mode);
 }
@@ -87,7 +97,7 @@ int openat64(int fd, const char* file, int oflag, ...)
 		mode = va_arg(args, mode_t);
 		va_end(args);
 	}
-	record_openat_path(fd, file);
+	prefam_record_openat_path(fd, file);
 	errno = errno_orig;
 	return openat64_orig(fd, file, oflag, mode);
 }
@@ -96,7 +106,7 @@ FILE* fopen(const char* path, const char* mode)
 {
 	RESOLVE_FUNCTION_POINTER(fopen);
 	int errno_orig = errno;
-	record_path(path);
+	prefam_record_path(path);
 	errno = errno_orig;
 	return fopen_orig(path, mode);
 }
@@ -105,7 +115,7 @@ FILE* fopen64(const char* path, const char* mode)
 {
 	RESOLVE_FUNCTION_POINTER(fopen64);
 	int errno_orig = errno;
-	record_path(path);
+	prefam_record_path(path);
 	errno = errno_orig;
 	return fopen64_orig(path, mode);
 }
@@ -114,7 +124,7 @@ FILE* freopen(const char* path, const char* mode, FILE* stream)
 {
 	RESOLVE_FUNCTION_POINTER(freopen);
 	int errno_orig = errno;
-	record_path(path);
+	prefam_record_path(path);
 	errno = errno_orig;
 	return freopen_orig(path, mode, stream);
 }
@@ -123,7 +133,7 @@ FILE* freopen64(const char* path, const char* mode, FILE* stream)
 {
 	RESOLVE_FUNCTION_POINTER(freopen64);
 	int errno_orig = errno;
-	record_path(path);
+	prefam_record_path(path);
 	errno = errno_orig;
 	return freopen64_orig(path, mode, stream);
 }
@@ -132,7 +142,7 @@ DIR* opendir(const char* path)
 {
 	RESOLVE_FUNCTION_POINTER(opendir);
 	int errno_orig = errno;
-	record_path(path);
+	prefam_record_path(path);
 	errno = errno_orig;
 	return opendir_orig(path);
 }
@@ -141,25 +151,24 @@ DIR* fdopendir(int fd)
 {
 	RESOLVE_FUNCTION_POINTER(fdopendir);
 	int errno_orig = errno;
-	record_fd(fd);
+	prefam_record_fd(fd);
 	errno = errno_orig;
 	return fdopendir_orig(fd);
 }
 
 ssize_t readlink(const char* restrict path, char* restrict buf, size_t bufsize)
 {
-	RESOLVE_FUNCTION_POINTER(readlink);
 	int errno_orig = errno;
-	record_path(path);
+	prefam_record_path(path);
 	errno = errno_orig;
-	return readlink_orig(path, buf, bufsize);
+	return prefam_orig_readlink(path, buf, bufsize);
 }
 
 ssize_t readlinkat(int dirfd, const char* restrict path, char* restrict buf, size_t bufsize)
 {
 	RESOLVE_FUNCTION_POINTER(readlinkat);
 	int errno_orig = errno;
-	record_openat_path(dirfd, path);
+	prefam_record_openat_path(dirfd, path);
 	errno = errno_orig;
 	return readlinkat_orig(dirfd, path, buf, bufsize);
 }
@@ -168,7 +177,7 @@ int execve(const char* path, char* const argv[], char* const envp[])
 {
 	RESOLVE_FUNCTION_POINTER(execve);
 	int errno_orig = errno;
-	record_path(path);
+	prefam_record_path(path);
 	errno = errno_orig;
 	return execve_orig(path, argv, envp);
 }
@@ -177,7 +186,7 @@ int fexecve(int fd, char* const argv[], char* const envp[])
 {
 	RESOLVE_FUNCTION_POINTER(fexecve);
 	int errno_orig = errno;
-	record_fd(fd);
+	prefam_record_fd(fd);
 	errno = errno_orig;
 	return fexecve_orig(fd, argv, envp);
 }
@@ -186,7 +195,7 @@ int execv(const char* path, char* const argv[])
 {
 	RESOLVE_FUNCTION_POINTER(execv);
 	int errno_orig = errno;
-	record_path(path);
+	prefam_record_path(path);
 	errno = errno_orig;
 	return execv_orig(path, argv);
 }
@@ -236,7 +245,7 @@ int execvp(const char* file, char* const argv[])
 {
 	RESOLVE_FUNCTION_POINTER(execvp);
 	int errno_orig = errno;
-	record_path_search(file);
+	prefam_record_path_search(file);
 	errno = errno_orig;
 	return execvp_orig(file, argv);
 }
@@ -265,7 +274,7 @@ int execvpe(const char* file, char* const argv[], char* const envp[])
 {
 	RESOLVE_FUNCTION_POINTER(execvpe);
 	int errno_orig = errno;
-	record_path_search(file);
+	prefam_record_path_search(file);
 	errno = errno_orig;
 	return execvpe_orig(file, argv, envp);
 }
@@ -277,7 +286,7 @@ int posix_spawn(pid_t* pid, const char* path,
 {
 	RESOLVE_FUNCTION_POINTER(posix_spawn);
 	int errno_orig = errno;
-	record_path(path);
+	prefam_record_path(path);
 	errno = errno_orig;
 	return posix_spawn_orig(pid, path, file_actions, attrp, argv, envp);
 }
@@ -289,7 +298,7 @@ int posix_spawnp(pid_t* pid, const char* file,
 {
 	RESOLVE_FUNCTION_POINTER(posix_spawnp);
 	int errno_orig = errno;
-	record_path_search(file);
+	prefam_record_path_search(file);
 	errno = errno_orig;
 	return posix_spawnp_orig(pid, file, file_actions, attrp, argv, envp);
 }
