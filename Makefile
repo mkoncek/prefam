@@ -29,6 +29,7 @@ target/test/%: target/object_files/%.c.o Makefile | target/test/
 target/test/test_derelativize: target/object_files/util.c.o
 target/test/test_open: target/object_files/preload.c.o target/object_files/record.c.o target/object_files/util.c.o
 target/test/test_exec: target/object_files/preload.c.o target/object_files/record.c.o target/object_files/util.c.o
+target/test/test_syscall: target/object_files/preload.c.o target/object_files/record.c.o target/object_files/util.c.o
 
 target/manpages/%: src/%.adoc | target/manpages/
 	asciidoctor -D target/manpages $<
@@ -37,7 +38,7 @@ manpages: target/manpages/prefam.1 target/manpages/prefam.3
 
 compile: target/lib/libprefam.so.$(soversion)
 
-test-compile: compile target/test/test_derelativize target/test/test_open target/test/test_exec
+test-compile: compile target/test/test_derelativize target/test/test_open target/test/test_exec target/test/test_syscall
 
 test: export TARGET_LIB = target/lib/libprefam.so.$(soversion)
 test: export TARGET_TEST_BIN_DIR = target/test

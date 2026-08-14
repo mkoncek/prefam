@@ -83,6 +83,16 @@ check_result '/__prefam_test_posix_spawn__$'
 
 ################################################################################
 
+echo "Test syscall"
+touch "${testdir}/file_syscall_open" "${testdir}/file_syscall_openat"
+touch "${testdir}/file_syscall_readlinkat" "${testdir}/file_syscall_readlink"
+PREFAM_OUTPUT_PATH="${testdir}/metafile" "${TARGET_TEST_BIN_DIR}/test_syscall" "${testdir}" 2>/dev/null
+check_result '/file_syscall_openat$'
+check_result '/file_syscall_readlinkat$'
+check_result '/__prefam_test_syscall_execve__$'
+
+################################################################################
+
 echo "content" >"${testdir}/textfile"
 test_command cat "${testdir}/textfile" >/dev/null
 check_result ".*/${testdir}/textfile$"

@@ -11,6 +11,7 @@
 #include <dlfcn.h>
 #include <errno.h>
 #include <spawn.h>
+#include <sys/syscall.h>
 
 static _Thread_local char* static_argv[128];
 
@@ -301,4 +302,50 @@ int posix_spawnp(pid_t* pid, const char* file,
 	prefam_record_path_search(file);
 	errno = errno_orig;
 	return posix_spawnp_orig(pid, file, file_actions, attrp, argv, envp);
+}
+
+long syscall(long number, ...)
+{
+	RESOLVE_FUNCTION_POINTER(syscall);
+	va_list args;
+	va_start(args, number);
+	long a1 = va_arg(args, long);
+	long a2 = va_arg(args, long);
+	long a3 = va_arg(args, long);
+	long a4 = va_arg(args, long);
+	long a5 = va_arg(args, long);
+	long a6 = va_arg(args, long);
+	va_end(args);
+	
+	int errno_orig = errno;
+	switch (number)
+	{
+#ifdef SYS_open
+	case SYS_open:
+#endif
+#ifdef SYS_creat
+	case SYS_creat:
+#endif
+	case SYS_execve:
+		prefam_record_path((const char*)a1);
+		break;
+#ifdef SYS_readlink
+	case SYS_readlink:
+		prefam_record_path((const char*)a1);
+		break;
+#endif
+	case SYS_openat:
+#ifdef SYS_openat2
+	case SYS_openat2:
+#endif
+	case SYS_readlinkat:
+#ifdef SYS_execveat
+	case SYS_execveat:
+#endif
+		prefam_record_openat_path((int)a1, (const char*)a2);
+		break;
+	}
+	errno = errno_orig;
+	
+	return syscall_orig(number, a1, a2, a3, a4, a5, a6);
 }
