@@ -71,35 +71,18 @@ static void exit_with_error(const char* fmt, ...)
 __attribute__((constructor))
 static void constructor(void)
 {
-	const char* env_output_fd = getenv("PREFAM_OUTPUT_FD");
 	const char* env_output_path = getenv("PREFAM_OUTPUT_PATH");
-	int output_fd = -1;
-	if (env_output_fd != NULL && env_output_path != NULL)
+	if (env_output_path == NULL)
 	{
-		exit_with_error("both PREFAM_OUTPUT_FD and PREFAM_OUTPUT_PATH are set");
-	}
-	else if (env_output_fd == NULL && env_output_path == NULL)
-	{
-		exit_with_error("neither of PREFAM_OUTPUT_FD, PREFAM_OUTPUT_PATH is set");
-	}
-	else if (env_output_path != NULL)
-	{
-		atomic_store_explicit(&static_output_path, env_output_path, memory_order_relaxed);
-		output_fd = prefam_orig_open(env_output_path, O_WRONLY | O_APPEND | O_CREAT, 0666);
-		if (output_fd == -1)
-		{
-			exit_with_error("%s", strerror(errno));
-		}
-	}
-	else
-	{
-		output_fd = atoi(env_output_fd);
-		if (output_fd == 0)
-		{
-			exit_with_error("unable to read number from PREFAM_OUTPUT_FD: %s", env_output_fd);
-		}
+		exit_with_error("PREFAM_OUTPUT_PATH is not set");
 	}
 	
+	atomic_store_explicit(&static_output_path, env_output_path, memory_order_relaxed);
+	int output_fd = prefam_orig_open(env_output_path, O_WRONLY | O_APPEND | O_CREAT, 0666);
+	if (output_fd == -1)
+	{
+		exit_with_error("%s", strerror(errno));
+	}
 	atomic_store_explicit(&static_output_fd, output_fd, memory_order_relaxed);
 	atomic_store_explicit(&static_init_pid, getpid(), memory_order_relaxed);
 }
@@ -198,18 +181,19 @@ static _Bool buffer_store_cwd(void)
 static void buffer_record_output(void)
 {
 	int output_fd = atomic_load_explicit(&static_output_fd, memory_order_relaxed);
-	// Program initialization is not fully finished.
 	if (output_fd == 0)
 	{
 		static_buffer_end = 0;
 		return;
 	}
-	const char* output_path = atomic_load_explicit(&static_output_path, memory_order_relaxed);
 	
-	// After fork, the parent's fd may have been closed by close_fds.
+	const pid_t pid = getpid();
+	
+	// After fork, the parent's fd may have been closed.
 	// Reopen the output file if we're in a forked child.
-	if (output_path != NULL && getpid() != atomic_load_explicit(&static_init_pid, memory_order_relaxed))
+	if (pid != atomic_load_explicit(&static_init_pid, memory_order_relaxed))
 	{
+		const char* output_path = atomic_load_explicit(&static_output_path, memory_order_relaxed);
 		output_fd = prefam_orig_open(output_path, O_WRONLY | O_APPEND | O_CREAT, 0666);
 		if (output_fd == -1)
 		{
@@ -217,7 +201,7 @@ static void buffer_record_output(void)
 			return;
 		}
 		atomic_store_explicit(&static_output_fd, output_fd, memory_order_relaxed);
-		atomic_store_explicit(&static_init_pid, getpid(), memory_order_relaxed);
+		atomic_store_explicit(&static_init_pid, pid, memory_order_relaxed);
 	}
 	
 	static_buffer_end = buffer_derelativize(static_buffer, static_buffer_end);

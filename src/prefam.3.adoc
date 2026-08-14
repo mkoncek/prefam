@@ -8,12 +8,12 @@
 prefam - preloaded file access monitor
 
 == SYNOPSIS
-*PREFAM_OUTPUT_FD*=_fd_ *LD_PRELOAD*=libprefam.so.1 *command* [args...]
+*PREFAM_OUTPUT_PATH*=_file_ *LD_PRELOAD*=libprefam.so.1 *command* [args...]
 
 == DESCRIPTION
 _Prefam_ is a library that interposes C library functions of families *open*, *fopen*, *opendir*, *readlink*, *exec* and *posix_spawn* and records which file paths have been accessed by these system calls.
 
-The library writes accessed file paths into the provided file descriptor as soon as the events happen.
+The library opens and writes accessed file paths into the provided output file as soon as the events happen.
 The accessed file paths written to the output are separated by newlines.
 
 Warning and error messages are printed on the standard error output.
@@ -30,15 +30,14 @@ Warning and error messages are printed on the standard error output.
 In case of a fatal error the library exits the whole program with *127*.
 
 == ENVIRONMENT VARIABLES
-*PREFAM_OUTPUT_FD*:: The numeric file descriptor into which the library writes the accessed paths.
+*PREFAM_OUTPUT_PATH*:: The file path into which the library writes the accessed paths.
+The file is opened with append and create flags.
 
 == EXAMPLES
 .Example usage from shell
 [subs="+quotes"]
 ----
-exec {fd}>output.log
-*PREFAM_OUTPUT_FD*={fd} *LD_PRELOAD*=libprefam.so.1 *command* _[args...]_
-exec {fd}>&-
+*PREFAM_OUTPUT_PATH*=output.log *LD_PRELOAD*=libprefam.so.1 *command* _[args...]_
 ----
 
 == SEE ALSO

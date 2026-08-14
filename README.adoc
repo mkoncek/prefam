@@ -8,9 +8,9 @@ It works by preloading a shared library via `LD_PRELOAD`, which means it only in
 While it is not as robust as using `fanotify` or other kernel-level instrumentation such as _eBPF_ it can be easily hooked onto programs from user space.
 
 == Usage
-In order to use this library you need to preload it and pass it the output file descriptor number via an environment variable `PREFAM_OUTPUT_FD`.
+In order to use this library you need to preload it and pass it the output file path via the environment variable `PREFAM_OUTPUT_PATH`.
 
-The library writes accessed file paths into the provided file descriptor as soon as the events happen.
+The library opens and writes accessed file paths into the provided output file as soon as the events happen.
 The accessed file paths written to the output are separated by newlines.
 
 Warning and error messages are printed on the standard error output.
@@ -18,9 +18,7 @@ Warning and error messages are printed on the standard error output.
 === Example usage from shell
 [source,bash]
 ----
-exec {fd}>output.log
-PREFAM_OUTPUT_FD={fd} LD_PRELOAD=libprefam.so.1 command [args...]
-exec {fd}>&-
+PREFAM_OUTPUT_PATH=output.log LD_PRELOAD=libprefam.so.1 command [args...]
 ----
 
 == Building

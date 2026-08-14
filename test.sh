@@ -10,9 +10,8 @@ mkdir "${testdir}"
 
 function test_command
 {
-	exec {fd}>"${testdir}/metafile"
-	PREFAM_OUTPUT_FD="${fd}" LD_PRELOAD="${TARGET_LIB}" "$@"
-	exec {fd}>&-
+	: > "${testdir}/metafile"
+	PREFAM_OUTPUT_PATH="${testdir}/metafile" LD_PRELOAD="${TARGET_LIB}" "$@"
 }
 
 function check_result
@@ -58,9 +57,7 @@ echo "Test derelativize"
 echo "Test open"
 touch "${testdir}/file_openat" "${testdir}/file_openat_bigfd" "${testdir}/file_openat64"
 touch "${testdir}/file_fopen" "${testdir}/file_fopen64" "${testdir}/file_freopen" "${testdir}/file_freopen64"
-exec {fd}>"${testdir}/metafile"
-PREFAM_OUTPUT_FD="${fd}" "${TARGET_TEST_BIN_DIR}/test_open" "${testdir}" 2>/dev/null
-exec {fd}>&-
+PREFAM_OUTPUT_PATH="${testdir}/metafile" "${TARGET_TEST_BIN_DIR}/test_open" "${testdir}" 2>/dev/null
 check_result '/file_openat$'
 check_result '/file_openat_bigfd$'
 check_result '/file_openat64$'
@@ -77,9 +74,7 @@ check_result "${testdir}$"
 ################################################################################
 
 echo "Test exec"
-exec {fd}>"${testdir}/metafile"
-PREFAM_OUTPUT_FD="${fd}" "${TARGET_TEST_BIN_DIR}/test_exec" 2>/dev/null
-exec {fd}>&-
+PREFAM_OUTPUT_PATH="${testdir}/metafile" "${TARGET_TEST_BIN_DIR}/test_exec" 2>/dev/null
 check_result '/__prefam_test_execve__$'
 check_result '/__prefam_test_execv__$'
 check_result '/__prefam_test_execle__$'
@@ -121,9 +116,7 @@ test_command env __prefam_nonexistent__ 2>/dev/null || true
 mkdir -p "${testdir}/bin"
 printf '#!/nonexistent_interp\n' >"${testdir}/bin/bad_shebang"
 chmod +x "${testdir}/bin/bad_shebang"
-exec {fd}>"${testdir}/metafile"
-PATH="${testdir}/bin:/usr/bin" PREFAM_OUTPUT_FD="${fd}" LD_PRELOAD="${TARGET_LIB}" env bad_shebang 2>/dev/null || true
-exec {fd}>&-
+PATH="${testdir}/bin:/usr/bin" PREFAM_OUTPUT_PATH="${testdir}/metafile" LD_PRELOAD="${TARGET_LIB}" env bad_shebang 2>/dev/null || true
 check_result ".*/${testdir}/bin/bad_shebang$"
 
 ################################################################################

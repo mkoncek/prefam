@@ -42,6 +42,8 @@ test-compile: compile target/test/test_derelativize target/test/test_open target
 test: export TARGET_LIB = target/lib/libprefam.so.$(soversion)
 test: export TARGET_TEST_BIN_DIR = target/test
 test: test-compile
+	unset PREFAM_OUTPUT_PATH
+	unset LD_PRELOAD
 	@./test.sh
 
 coverage: CFLAGS += --coverage -fno-default-inline
