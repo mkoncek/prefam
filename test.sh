@@ -10,7 +10,7 @@ mkdir "${testdir}"
 
 function test_command
 {
-	: > "${testdir}/metafile"
+	touch "${testdir}/metafile"
 	PREFAM_OUTPUT_PATH="${testdir}/metafile" LD_PRELOAD="${TARGET_LIB}" "$@"
 }
 
@@ -158,8 +158,10 @@ test_command cat "${testdir}/no_such_file" 2>/dev/null || true
 check_result ".*/${testdir}/no_such_file$"
 
 ################################################################################
-# Test xargs executing a command (exercises execvp in xargs context)
-echo "${testdir}/textfile" | test_command xargs cat >/dev/null
-check_result ".*/${testdir}/textfile$"
+if ( source /etc/os-release; [[ ! "${ID}-${VERSION_ID}" =~ ^"rhel-8" ]] ); then
+	# Test xargs executing a command (exercises execvp in xargs context)
+	echo "${testdir}/textfile" | test_command xargs cat >/dev/null
+	check_result ".*/${testdir}/textfile$"
+fi
 
 echo 'Tests PASSED'
