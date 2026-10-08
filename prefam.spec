@@ -1,4 +1,4 @@
-%global git_ref a5b4a93b41fa8c46eb48b1b208c2ac6eb99cd660
+%global git_ref e85113acf1be8f1a003d6f6fa047af62b58aef5e
 %global git_short_ref %(echo %{git_ref} | cut -b -7)
 
 Name:           prefam
