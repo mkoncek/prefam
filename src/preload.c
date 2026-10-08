@@ -49,7 +49,14 @@ int open(const char* file, int oflag, ...)
 	}
 	prefam_record_path(file);
 	errno = errno_orig;
-	return prefam_orig_open(file, oflag, mode);
+	int result = prefam_orig_open(file, oflag, mode);
+	if (result >= 0)
+	{
+		errno_orig = errno;
+		prefam_record_fd(result);
+		errno = errno_orig;
+	}
+	return result;
 }
 
 int open64(const char* file, int oflag, ...)
@@ -66,7 +73,14 @@ int open64(const char* file, int oflag, ...)
 	}
 	prefam_record_path(file);
 	errno = errno_orig;
-	return open64_orig(file, oflag, mode);
+	int result = open64_orig(file, oflag, mode);
+	if (result >= 0)
+	{
+		errno_orig = errno;
+		prefam_record_fd(result);
+		errno = errno_orig;
+	}
+	return result;
 }
 
 int openat(int fd, const char* file, int oflag, ...)
@@ -83,7 +97,14 @@ int openat(int fd, const char* file, int oflag, ...)
 	}
 	prefam_record_openat_path(fd, file);
 	errno = errno_orig;
-	return openat_orig(fd, file, oflag, mode);
+	int result = openat_orig(fd, file, oflag, mode);
+	if (result >= 0)
+	{
+		errno_orig = errno;
+		prefam_record_fd(result);
+		errno = errno_orig;
+	}
+	return result;
 }
 
 int openat64(int fd, const char* file, int oflag, ...)
@@ -100,7 +121,14 @@ int openat64(int fd, const char* file, int oflag, ...)
 	}
 	prefam_record_openat_path(fd, file);
 	errno = errno_orig;
-	return openat64_orig(fd, file, oflag, mode);
+	int result = openat64_orig(fd, file, oflag, mode);
+	if (result >= 0)
+	{
+		errno_orig = errno;
+		prefam_record_fd(result);
+		errno = errno_orig;
+	}
+	return result;
 }
 
 FILE* fopen(const char* path, const char* mode)
@@ -109,7 +137,14 @@ FILE* fopen(const char* path, const char* mode)
 	int errno_orig = errno;
 	prefam_record_path(path);
 	errno = errno_orig;
-	return fopen_orig(path, mode);
+	FILE* result = fopen_orig(path, mode);
+	if (result != NULL)
+	{
+		errno_orig = errno;
+		prefam_record_fd(fileno(result));
+		errno = errno_orig;
+	}
+	return result;
 }
 
 FILE* fopen64(const char* path, const char* mode)
@@ -118,7 +153,14 @@ FILE* fopen64(const char* path, const char* mode)
 	int errno_orig = errno;
 	prefam_record_path(path);
 	errno = errno_orig;
-	return fopen64_orig(path, mode);
+	FILE* result = fopen64_orig(path, mode);
+	if (result != NULL)
+	{
+		errno_orig = errno;
+		prefam_record_fd(fileno(result));
+		errno = errno_orig;
+	}
+	return result;
 }
 
 FILE* freopen(const char* path, const char* mode, FILE* stream)
@@ -127,7 +169,14 @@ FILE* freopen(const char* path, const char* mode, FILE* stream)
 	int errno_orig = errno;
 	prefam_record_path(path);
 	errno = errno_orig;
-	return freopen_orig(path, mode, stream);
+	FILE* result = freopen_orig(path, mode, stream);
+	if (result != NULL)
+	{
+		errno_orig = errno;
+		prefam_record_fd(fileno(result));
+		errno = errno_orig;
+	}
+	return result;
 }
 
 FILE* freopen64(const char* path, const char* mode, FILE* stream)
@@ -136,7 +185,14 @@ FILE* freopen64(const char* path, const char* mode, FILE* stream)
 	int errno_orig = errno;
 	prefam_record_path(path);
 	errno = errno_orig;
-	return freopen64_orig(path, mode, stream);
+	FILE* result = freopen64_orig(path, mode, stream);
+	if (result != NULL)
+	{
+		errno_orig = errno;
+		prefam_record_fd(fileno(result));
+		errno = errno_orig;
+	}
+	return result;
 }
 
 DIR* opendir(const char* path)
@@ -145,7 +201,14 @@ DIR* opendir(const char* path)
 	int errno_orig = errno;
 	prefam_record_path(path);
 	errno = errno_orig;
-	return opendir_orig(path);
+	DIR* result = opendir_orig(path);
+	if (result != NULL)
+	{
+		errno_orig = errno;
+		prefam_record_fd(dirfd(result));
+		errno = errno_orig;
+	}
+	return result;
 }
 
 DIR* fdopendir(int fd)
