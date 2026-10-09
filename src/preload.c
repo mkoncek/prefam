@@ -242,6 +242,7 @@ int execve(const char* path, char* const argv[], char* const envp[])
 	RESOLVE_FUNCTION_POINTER(execve);
 	int errno_orig = errno;
 	prefam_record_path(path);
+	prefam_record_path_resolved(path);
 	errno = errno_orig;
 	return execve_orig(path, argv, envp);
 }
@@ -260,6 +261,7 @@ int execv(const char* path, char* const argv[])
 	RESOLVE_FUNCTION_POINTER(execv);
 	int errno_orig = errno;
 	prefam_record_path(path);
+	prefam_record_path_resolved(path);
 	errno = errno_orig;
 	return execv_orig(path, argv);
 }
@@ -351,6 +353,7 @@ int posix_spawn(pid_t* pid, const char* path,
 	RESOLVE_FUNCTION_POINTER(posix_spawn);
 	int errno_orig = errno;
 	prefam_record_path(path);
+	prefam_record_path_resolved(path);
 	errno = errno_orig;
 	return posix_spawn_orig(pid, path, file_actions, attrp, argv, envp);
 }
@@ -389,8 +392,11 @@ long syscall(long number, ...)
 #ifdef SYS_creat
 	case SYS_creat:
 #endif
+		prefam_record_path((const char*)a1);
+		break;
 	case SYS_execve:
 		prefam_record_path((const char*)a1);
+		prefam_record_path_resolved((const char*)a1);
 		break;
 #ifdef SYS_readlink
 	case SYS_readlink:

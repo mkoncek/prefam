@@ -308,6 +308,28 @@ void prefam_record_openat_path(int fd, const char* path)
 	}
 }
 
+void prefam_record_path_resolved(const char* path)
+{
+	if (static_suspended)
+	{
+		return;
+	}
+	if (path == NULL)
+	{
+		return;
+	}
+	int fd = prefam_orig_open(path, O_PATH, 0);
+	if (fd >= 0)
+	{
+		if (buffer_readlink(fd))
+		{
+			BUFFER_PUSH(chunk_delimiter);
+			buffer_record_output();
+		}
+		close(fd);
+	}
+}
+
 void prefam_record_path_search(const char* path)
 {
 	if (static_suspended)
@@ -321,6 +343,7 @@ void prefam_record_path_search(const char* path)
 	if (strchr(path, '/') != NULL)
 	{
 		prefam_record_path(path);
+		prefam_record_path_resolved(path);
 		return;
 	}
 	int path_length = (int)strlen(path);
@@ -356,9 +379,22 @@ void prefam_record_path_search(const char* path)
 				
 				if (access(static_buffer, X_OK) == 0)
 				{
+					// Open with O_PATH while path is still null-terminated,
+					// to resolve symlinks via /proc/self/fd.
+					int path_fd = prefam_orig_open(static_buffer, O_PATH, 0);
 					// Replace null-terminator with a new line.
 					static_buffer[static_buffer_end - 1] = '\n';
 					buffer_record_output();
+					// Record the resolved canonical path.
+					if (path_fd >= 0)
+					{
+						if (buffer_readlink(path_fd))
+						{
+							BUFFER_PUSH(chunk_delimiter);
+							buffer_record_output();
+						}
+						close(path_fd);
+					}
 					return;
 				}
 				static_buffer_end = 0;

@@ -29,3 +29,10 @@ __attribute__((visibility("hidden"))) void prefam_record_openat_path(int fd, con
 //! for @p path.
 //! @param path The path that was searched for on all entries present in the PATH.
 __attribute__((visibility("hidden"))) void prefam_record_path_search(const char* path);
+
+//! Resolve @p path through the kernel (following symlinks) and record the
+//! canonical path if it differs from the original.
+//! This opens @p path with O_PATH to obtain a file descriptor, reads its
+//! canonical name via /proc/self/fd, and records it.
+//! @param path The file path to resolve and record.
+__attribute__((visibility("hidden"))) void prefam_record_path_resolved(const char* path);
